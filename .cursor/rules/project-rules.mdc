@@ -1,0 +1,142 @@
+---
+alwaysApply: true
+---
+
+# Maimang Readbox Project Rules
+
+## Product Boundaries
+
+This is a **small, quiet reading platform** called Maimang Readbox.
+
+**Core Loop**:
+1. User subscribes to authors
+2. Authors publish articles
+3. Articles are delivered to user's inbox
+4. User saves external links or texts
+5. User reads, classifies, stars, archives, and takes notes
+
+**Do NOT turn it into**:
+- Social feed
+- Recommendation platform
+- Hot ranking platform
+- Full content community
+
+## MVP Boundaries
+
+**Do NOT add unless explicitly requested**:
+- Payments
+- Recommendation algorithms
+- Comments
+- Private messages
+- Hot rankings
+- Complex analytics
+- Browser extensions
+- Native mobile apps
+- AI assistants
+- Bulk import
+
+## External Content Compliance
+
+**Critical Rules**:
+- ❌ Do NOT implement bulk scraping
+- ❌ Do NOT bypass paywalls, login walls, anti-scraping measures
+- ❌ Do NOT publicly expose full third-party imported content
+- ✅ External content import MUST be user-initiated
+- ✅ Sharing should prefer title, source, original link, and user's own notes
+
+## Karpathy Coding Principles
+
+### 1. Think Before Coding
+- State assumptions explicitly
+- If multiple interpretations exist, present them
+- If simpler approach exists, say so
+- If unclear, stop and ask
+
+### 2. Simplicity First
+- No features beyond what was asked
+- No abstractions for single-use code
+- No "flexibility" or "configurability" that wasn't requested
+- No error handling for impossible scenarios
+- If 200 lines could be 50, rewrite it
+
+### 3. Surgical Changes
+- Touch only what you must
+- Don't "improve" adjacent code, comments, or formatting
+- Don't refactor things that aren't broken
+- Match existing style
+- Clean up only your own mess
+
+### 4. Goal-Driven Execution
+- Define success criteria
+- Loop until verified
+- Transform tasks into verifiable goals
+- For multi-step tasks, state a brief plan with verification steps
+
+## Technical Defaults
+
+**Use**:
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui (when needed)
+- Supabase Auth
+- Supabase PostgreSQL
+- PostgreSQL RLS
+- pnpm
+
+**Do NOT introduce in MVP**:
+- Python backend
+- Redux/MobX/Zustand
+- Prisma
+- tRPC
+- Payment libraries
+- Scraping libraries
+- OCR/AI dependencies
+
+**Future Python FastAPI service** is reserved ONLY for:
+- OCR
+- PDF parsing
+- Text extraction
+- Classification
+- Summarization
+
+## Before Coding Checklist
+
+Before implementation, always state:
+- Assumptions
+- Touched files
+- Success criteria
+- Verification steps
+- What is explicitly NOT included
+
+## After Coding Checklist
+
+After implementation, always report:
+- Changed files
+- Why each file changed
+- Validation commands run
+- Validation results
+- Unresolved risks
+- Next recommended task
+
+## Module Boundaries
+
+Respect module boundaries defined in docs/03_module_map.md
+
+## API Contract
+
+Follow API contract defined in docs/04_api_contract.md
+
+## Database Schema
+
+Follow database schema defined in docs/05_database_schema.md
+
+## Self-Check Questions
+
+Before committing, ask yourself:
+1. Does this stick to "small and beautiful" positioning?
+2. Did I introduce unnecessary complexity?
+3. Did I implement unrequested features?
+4. Did I violate external content compliance principles?
+
+If any answer is "no", fix it before committing.
