@@ -8,9 +8,9 @@
 
 `0001_initial_schema.sql` 包含:
 - 11 个核心数据表
-- RLS 策略
+- 保守的基础 RLS 策略
 - 索引
-- 触发器
+- 不包含 auth profile 自动创建触发器
 
 ### 如何应用迁移
 
@@ -31,3 +31,5 @@ npx supabase gen types typescript --project-id <project-id> > ../src/types/datab
 - 迁移文件按顺序编号 (0001, 0002, ...)
 - 不要修改已应用的迁移文件
 - 新的数据库变更应创建新的迁移文件
+- 当前 migration 不会自动创建 profiles 记录，相关触发器或注册流程留到后续任务处理
+- notes / reflections 的公开可见策略暂未开放，当前以私有优先
