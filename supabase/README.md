@@ -1,35 +1,42 @@
 # Supabase Migrations
 
-## 使用说明
+## 当前迁移
 
-本目录包含数据库迁移文件。
+- `0001_initial_schema.sql`
+  - 11 张核心业务表
+  - 保守的基础 RLS 策略
+  - 不包含认证流程
+- `0002_create_profile_on_signup.sql`
+  - 在 `auth.users` 新增用户后自动创建 `public.profiles`
+  - `profiles.id = auth.users.id`
+  - 默认角色为 `reader`
+  - 不创建作者资料、不创建 Inbox、不创建任何业务数据
 
-### 初始 Schema
-
-`0001_initial_schema.sql` 包含:
-- 11 个核心数据表
-- 保守的基础 RLS 策略
-- 索引
-- 不包含 auth profile 自动创建触发器
-
-### 如何应用迁移
+## 如何应用迁移
 
 1. 创建 Supabase 项目
-2. 安装 Supabase CLI: `npm install -g supabase`
-3. 登录: `supabase login`
-4. 链接项目: `supabase link --project-ref <project-id>`
-5. 应用迁移: `supabase db push`
+2. 安装 Supabase CLI：`npm install -g supabase`
+3. 登录：`supabase login`
+4. 关联项目：`supabase link --project-ref <project-id>`
+5. 应用迁移：`supabase db push`
 
-### 如何生成类型
+如果你更偏向本地数据库验证，也可以使用：
 
 ```bash
-npx supabase gen types typescript --project-id <project-id> > ../src/types/database.ts
+supabase db reset
+```
+
+## 如何生成数据库类型
+
+当前 `src/types/database.ts` 是手写占位类型。后续可以用 Supabase CLI 覆盖成真实生成类型：
+
+```bash
+npx supabase gen types typescript --project-id <project-id> > src/types/database.ts
 ```
 
 ## 注意事项
 
-- 迁移文件按顺序编号 (0001, 0002, ...)
-- 不要修改已应用的迁移文件
-- 新的数据库变更应创建新的迁移文件
-- 当前 migration 不会自动创建 profiles 记录，相关触发器或注册流程留到后续任务处理
-- notes / reflections 的公开可见策略暂未开放，当前以私有优先
+- 迁移按顺序编号，不要重排已经存在的迁移。
+- 新的数据库变更应创建新的迁移文件，不要回改已发布迁移。
+- `0002` 触发器只负责创建基础 `profiles` 记录，不负责任何后续业务初始化。
+- 当前认证实现不使用 `service role key`，也不绕过 RLS。
