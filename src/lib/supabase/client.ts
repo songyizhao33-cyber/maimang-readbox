@@ -1,16 +1,24 @@
-// Supabase browser client
-// TODO: Install @supabase/supabase-js and configure
+import { createBrowserClient } from "@supabase/ssr";
 
-// import { createBrowserClient } from '@supabase/ssr';
+import type { Database } from "../../types/database";
 
-// export function createClient() {
-//   return createBrowserClient(
-//     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-//   );
-// }
+function getSupabaseBrowserEnv() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Placeholder for now
+  if (!url) {
+    throw new Error("Missing env: NEXT_PUBLIC_SUPABASE_URL");
+  }
+
+  if (!anonKey) {
+    throw new Error("Missing env: NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  }
+
+  return { url, anonKey };
+}
+
 export function createClient() {
-  throw new Error('Supabase client not configured yet. Install @supabase/supabase-js first.');
+  const { url, anonKey } = getSupabaseBrowserEnv();
+
+  return createBrowserClient<Database>(url, anonKey);
 }
