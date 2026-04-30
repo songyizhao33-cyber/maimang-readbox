@@ -170,14 +170,34 @@ export default async function AuthorWritePage({
             {article ? "Edit draft" : "New draft"}
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            T14 only covers drafting. Publishing, public article pages, inbox delivery, and
-            subscriptions remain out of scope until later tasks.
+            Save or refine drafts here. Publishing happens from the article list, while
+            subscriptions and inbox delivery remain out of scope in T15.
           </p>
         </div>
 
-        <div className="mt-8">
-          <DraftArticleForm initialArticle={article} />
-        </div>
+        {article?.status && article.status !== "draft" ? (
+          <div className="mt-8 space-y-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-700">
+            <p>This article has already been published and can no longer be edited as a draft.</p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href={ROUTES.ARTICLE(article.id)}
+                className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
+              >
+                View public article
+              </Link>
+              <Link
+                href={ROUTES.AUTHOR_ARTICLES}
+                className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
+              >
+                Back to my articles
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-8">
+            <DraftArticleForm initialArticle={article} />
+          </div>
+        )}
       </div>
     </section>
   );

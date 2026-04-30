@@ -1,19 +1,147 @@
-import { PlaceholderPage } from '@/components/common/placeholder-page';
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-export default function ArticlePage({ params }: { params: { id: string } }) {
+import type { Database } from "@/types/database";
+
+import { ROUTES } from "@/lib/constants/routes";
+import { createClient } from "@/lib/supabase/server";
+
+type AuthorPublicRow = Pick<
+  Database["public"]["Tables"]["author_profiles"]["Row"],
+  "id" | "pen_name" | "avatar_url"
+>;
+
+function formatDate(value: string) {
+  try {
+    return new Intl.DateTimeFormat("zh-CN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: articleRow, error: articleError } = await supabase
+    .from("articles")
+    .select(
+      "id, author_id, title, subtitle, slug, excerpt, content, cover_url, status, published_at, created_at, updated_at",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (articleError) {
+    return (
+      <section className="space-y-6">
+        <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+          Failed to load the article. Please refresh and try again.
+        </div>
+      </section>
+    );
+  }
+
+  if (!articleRow) {
+    notFound();
+  }
+
+  const { data: authorProfile } = await supabase
+    .from("author_profiles")
+    .select("id, pen_name, avatar_url")
+    .eq("id", articleRow.author_id)
+    .maybeSingle();
+
+  const author = authorProfile as AuthorPublicRow | null;
+  const isDraftPreview = articleRow.status === "draft";
+
   return (
-    <PlaceholderPage
-      title="文章阅读器"
-      description={`文章 ID: ${params.id}`}
-      module="reader-ui"
-      futureFeatures={[
-        '沉浸式阅读体验',
-        '添加笔记和高亮',
-        '写读后感',
-        '星标和归档',
-        '分享',
-        '字体和排版设置',
-      ]}
-    />
+    <article className="space-y-8">
+      <header className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-stone-400">
+            <span>{isDraftPreview ? "Draft preview" : "Published article"}</span>
+            <span>
+              {articleRow.published_at
+                ? `Published ${formatDate(articleRow.published_at)}`
+                : `Updated ${formatDate(articleRow.updated_at)}`}
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-5xl">
+              {articleRow.title}
+            </h1>
+            {articleRow.subtitle ? (
+              <p className="max-w-3xl text-lg leading-8 text-stone-600">{articleRow.subtitle}</p>
+            ) : null}
+            {articleRow.excerpt ? (
+              <p className="max-w-3xl text-sm leading-7 text-stone-500">{articleRow.excerpt}</p>
+            ) : null}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm text-stone-700">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-stone-200 bg-white text-stone-400">
+                {author?.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={author.avatar_url}
+                    alt={author?.pen_name ? `${author.pen_name} avatar` : "Author avatar"}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xs uppercase tracking-[0.18em]">A</span>
+                )}
+              </div>
+              <div className="space-y-1">
+                <div className="text-xs uppercase tracking-[0.18em] text-stone-400">Author</div>
+                {author?.pen_name ? (
+                  <Link
+                    href={ROUTES.AUTHOR_DETAIL(author.id)}
+                    className="text-sm font-medium text-stone-900 transition-colors hover:text-stone-700"
+                  >
+                    {author.pen_name}
+                  </Link>
+                ) : (
+                  <div className="text-sm font-medium text-stone-900">Author</div>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              disabled
+              className="inline-flex cursor-not-allowed items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-stone-400"
+            >
+              Subscription opens in T20
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {articleRow.cover_url ? (
+        <div className="overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={articleRow.cover_url}
+            alt={articleRow.title}
+            className="h-auto w-full object-cover"
+          />
+        </div>
+      ) : null}
+
+      <section className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)] sm:p-10">
+        <div className="prose prose-stone max-w-none whitespace-pre-wrap text-sm leading-8 text-stone-700 sm:text-base">
+          {articleRow.content || "This article does not have body content yet."}
+        </div>
+      </section>
+    </article>
   );
 }

@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
 type ArticleUpdate = Database["public"]["Tables"]["articles"]["Update"];
+type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
 
 interface UpdateArticleRequestBody {
   title?: unknown;
@@ -24,6 +25,8 @@ interface UpdateArticleRequestBody {
   updated_at?: unknown;
 }
 
+type AuthorPublicData = Pick<AuthorProfileRow, "id" | "pen_name" | "avatar_url">;
+
 type ArticleResponseData = Pick<
   Article,
   | "id"
@@ -38,12 +41,18 @@ type ArticleResponseData = Pick<
   | "publishedAt"
   | "createdAt"
   | "updatedAt"
->;
+> & {
+  author: {
+    id: string;
+    penName: string | null;
+    avatarUrl: string | null;
+  };
+};
 
 const ARTICLE_SELECT =
   "id, author_id, title, subtitle, slug, excerpt, content, cover_url, status, published_at, created_at, updated_at";
 
-function toArticleResponse(row: ArticleRow): ArticleResponseData {
+function toArticleResponse(row: ArticleRow, author: AuthorPublicData | null): ArticleResponseData {
   return {
     id: row.id,
     authorId: row.author_id,
@@ -57,6 +66,11 @@ function toArticleResponse(row: ArticleRow): ArticleResponseData {
     publishedAt: row.published_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    author: {
+      id: row.author_id,
+      penName: author?.pen_name ?? null,
+      avatarUrl: author?.avatar_url ?? null,
+    },
   };
 }
 
@@ -313,6 +327,63 @@ async function ensureSlugAvailable(
   return { value: slug };
 }
 
+async function getAuthorPublicProfile(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  authorId: string,
+) {
+  const { data: authorProfile, error } = await supabase
+    .from("author_profiles")
+    .select("id, pen_name, avatar_url")
+    .eq("id", authorId)
+    .maybeSingle();
+
+  if (error) {
+    return { error: "Failed to load article author." };
+  }
+
+  return { value: authorProfile as AuthorPublicData | null };
+}
+
+async function getReadableArticleContext(articleId: string) {
+  const supabase = await createClient();
+  const { data: articleRow, error: articleError } = await supabase
+    .from("articles")
+    .select(ARTICLE_SELECT)
+    .eq("id", articleId)
+    .maybeSingle();
+
+  if (articleError) {
+    return {
+      supabase,
+      article: null,
+      author: null,
+      errorResponse: internalError("Failed to load article."),
+    };
+  }
+
+  if (!articleRow) {
+    return { supabase, article: null, author: null, errorResponse: notFound() };
+  }
+
+  const authorResult = await getAuthorPublicProfile(supabase, articleRow.author_id);
+
+  if ("error" in authorResult && typeof authorResult.error === "string") {
+    return {
+      supabase,
+      article: null,
+      author: null,
+      errorResponse: internalError(authorResult.error),
+    };
+  }
+
+  return {
+    supabase,
+    article: articleRow,
+    author: authorResult.value,
+    errorResponse: null,
+  };
+}
+
 async function getOwnArticleContext(articleId: string) {
   const supabase = await createClient();
   const {
@@ -321,7 +392,12 @@ async function getOwnArticleContext(articleId: string) {
   } = await supabase.auth.getUser();
 
   if (userError || !user?.id) {
-    return { supabase, article: null, errorResponse: authRequired() };
+    return {
+      supabase,
+      article: null,
+      author: null,
+      errorResponse: authRequired(),
+    };
   }
 
   const { data: authorProfile, error: authorProfileError } = await supabase
@@ -334,12 +410,13 @@ async function getOwnArticleContext(articleId: string) {
     return {
       supabase,
       article: null,
+      author: null,
       errorResponse: internalError("Failed to load author profile."),
     };
   }
 
   if (!authorProfile) {
-    return { supabase, article: null, errorResponse: notFound() };
+    return { supabase, article: null, author: null, errorResponse: notFound() };
   }
 
   const { data: articleRow, error: articleError } = await supabase
@@ -353,15 +430,32 @@ async function getOwnArticleContext(articleId: string) {
     return {
       supabase,
       article: null,
+      author: null,
       errorResponse: internalError("Failed to load article."),
     };
   }
 
   if (!articleRow) {
-    return { supabase, article: null, errorResponse: notFound() };
+    return { supabase, article: null, author: null, errorResponse: notFound() };
   }
 
-  return { supabase, article: articleRow, errorResponse: null };
+  const authorResult = await getAuthorPublicProfile(supabase, articleRow.author_id);
+
+  if ("error" in authorResult && typeof authorResult.error === "string") {
+    return {
+      supabase,
+      article: null,
+      author: null,
+      errorResponse: internalError(authorResult.error),
+    };
+  }
+
+  return {
+    supabase,
+    article: articleRow,
+    author: authorResult.value,
+    errorResponse: null,
+  };
 }
 
 export async function GET(
@@ -369,14 +463,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const { article, errorResponse } = await getOwnArticleContext(id);
+  const { article, author, errorResponse } = await getReadableArticleContext(id);
 
   if (errorResponse || !article) {
     return errorResponse;
   }
 
   return NextResponse.json<ApiResponse<ArticleResponseData>>({
-    data: toArticleResponse(article),
+    data: toArticleResponse(article, author),
   });
 }
 
@@ -385,14 +479,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const { supabase, article, errorResponse } = await getOwnArticleContext(id);
+  const { supabase, article, author, errorResponse } = await getOwnArticleContext(id);
 
   if (errorResponse || !article) {
     return errorResponse;
   }
 
   if (article.status !== "draft") {
-    return forbidden("Only draft articles can be edited in T14.");
+    return forbidden("Only draft articles can be edited in T15.");
   }
 
   const rawBody = await request.json().catch(() => null);
@@ -480,7 +574,7 @@ export async function PATCH(
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json<ApiResponse<ArticleResponseData>>({
-      data: toArticleResponse(article),
+      data: toArticleResponse(article, author),
     });
   }
 
@@ -498,7 +592,7 @@ export async function PATCH(
   }
 
   return NextResponse.json<ApiResponse<ArticleResponseData>>({
-    data: toArticleResponse(updatedArticle),
+    data: toArticleResponse(updatedArticle, author),
     message: "Draft saved.",
   });
 }

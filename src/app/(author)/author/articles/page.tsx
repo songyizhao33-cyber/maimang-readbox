@@ -66,7 +66,7 @@ export default async function AuthorArticlesPage() {
               Articles
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              My drafts
+              My articles
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
               Sign in first to view your own article drafts.
@@ -112,7 +112,7 @@ export default async function AuthorArticlesPage() {
               Articles
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              My drafts
+              My articles
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
               Create your author profile first before you start writing drafts.
@@ -150,11 +150,11 @@ export default async function AuthorArticlesPage() {
             Articles
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            My drafts
+            My articles
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            This page only lists your own draft or private writing records. Public article display
-            and publishing stay out of scope until T15.
+            Manage your own drafts and published articles here. Publishing is now available, but
+            subscription delivery and inbox fan-out stay out of scope in T15.
           </p>
         </div>
 
@@ -174,7 +174,7 @@ export default async function AuthorArticlesPage() {
         </div>
       ) : articles.length === 0 ? (
         <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-600">
-          You do not have any drafts yet.
+          You do not have any articles yet.
         </div>
       ) : (
         <div className="grid gap-6">
