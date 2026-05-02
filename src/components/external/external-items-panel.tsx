@@ -39,6 +39,10 @@ interface ExternalItemMutationData {
   updatedAt: string;
 }
 
+interface ExternalItemDeleteData {
+  id: string;
+}
+
 export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalItemView[] }) {
   const [form, setForm] = useState(INITIAL_FORM);
   const [items, setItems] = useState(initialItems);
@@ -49,6 +53,9 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
   const [editingDraft, setEditingDraft] = useState<Record<string, ExternalItemView>>({});
   const [pendingEditId, setPendingEditId] = useState<string | null>(null);
   const [editErrorMessage, setEditErrorMessage] = useState<string | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleteErrorMessage, setDeleteErrorMessage] = useState<string | null>(null);
 
   function getEditingItem(item: ExternalItemView) {
     return editingDraft[item.id] ?? item;
@@ -57,6 +64,8 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
   function startEdit(item: ExternalItemView) {
     setEditingId(item.id);
     setEditErrorMessage(null);
+    setConfirmingDeleteId(null);
+    setDeleteErrorMessage(null);
     setEditingDraft((current) => ({
       ...current,
       [item.id]: { ...item },
@@ -72,6 +81,23 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
       delete next[itemId];
       return next;
     });
+  }
+
+  function requestDelete(itemId: string) {
+    if (editingId === itemId) {
+      cancelEdit(itemId);
+    }
+
+    setSuccessMessage(null);
+    setConfirmingDeleteId(itemId);
+    setPendingDeleteId(null);
+    setDeleteErrorMessage(null);
+  }
+
+  function cancelDelete() {
+    setConfirmingDeleteId(null);
+    setPendingDeleteId(null);
+    setDeleteErrorMessage(null);
   }
 
   function changeEditingField(
@@ -149,6 +175,43 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
       setEditErrorMessage("Failed to update external item.");
     } finally {
       setPendingEditId(null);
+    }
+  }
+
+  async function confirmDelete(itemId: string) {
+    setPendingDeleteId(itemId);
+    setDeleteErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await fetch(`/api/external-items/${itemId}`, {
+        method: "DELETE",
+      });
+
+      const result = (await response.json()) as ApiResponse<ExternalItemDeleteData>;
+
+      if (!response.ok || !("data" in result) || !result.data) {
+        const message =
+          "error" in result && result.error?.message
+            ? result.error.message
+            : "Failed to delete external item.";
+        setDeleteErrorMessage(message);
+        return;
+      }
+
+      setItems((current) => current.filter((item) => item.id !== itemId));
+      setEditingDraft((current) => {
+        const next = { ...current };
+        delete next[itemId];
+        return next;
+      });
+      setEditingId((current) => (current === itemId ? null : current));
+      cancelDelete();
+      setSuccessMessage("External item deleted.");
+    } catch {
+      setDeleteErrorMessage("Failed to delete external item.");
+    } finally {
+      setPendingDeleteId(null);
     }
   }
 
@@ -336,9 +399,20 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
               item={getEditingItem(item)}
               isEditing={editingId === item.id}
               isPending={pendingEditId === item.id}
-              errorMessage={editingId === item.id ? editErrorMessage : null}
+              isDeleting={pendingDeleteId === item.id}
+              isConfirmingDelete={confirmingDeleteId === item.id}
+              errorMessage={
+                editingId === item.id
+                  ? editErrorMessage
+                  : confirmingDeleteId === item.id
+                    ? deleteErrorMessage
+                    : null
+              }
               onStartEdit={() => startEdit(item)}
               onCancelEdit={() => cancelEdit(item.id)}
+              onRequestDelete={() => requestDelete(item.id)}
+              onCancelDelete={cancelDelete}
+              onConfirmDelete={() => confirmDelete(item.id)}
               onFieldChange={(field, value) => changeEditingField(item.id, field, value)}
               onSaveEdit={() => saveEdit(item.id)}
             />

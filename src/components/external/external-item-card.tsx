@@ -19,9 +19,14 @@ interface ExternalItemCardProps {
   item: ExternalItemView;
   isEditing?: boolean;
   isPending?: boolean;
+  isDeleting?: boolean;
+  isConfirmingDelete?: boolean;
   errorMessage?: string | null;
   onStartEdit?: () => void;
   onCancelEdit?: () => void;
+  onRequestDelete?: () => void;
+  onCancelDelete?: () => void;
+  onConfirmDelete?: () => void;
   onFieldChange?: (
     field: "title" | "sourceUrl" | "sourcePlatform" | "authorName" | "excerpt",
     value: string,
@@ -63,9 +68,14 @@ export function ExternalItemCard({
   item,
   isEditing = false,
   isPending = false,
+  isDeleting = false,
+  isConfirmingDelete = false,
   errorMessage = null,
   onStartEdit,
   onCancelEdit,
+  onRequestDelete,
+  onCancelDelete,
+  onConfirmDelete,
   onFieldChange,
   onSaveEdit,
 }: ExternalItemCardProps) {
@@ -174,17 +184,51 @@ export function ExternalItemCard({
                   Cancel
                 </button>
               </>
+            ) : isConfirmingDelete ? (
+              <>
+                <button
+                  type="button"
+                  onClick={onConfirmDelete}
+                  disabled={isDeleting || !onConfirmDelete}
+                  className="inline-flex items-center rounded-full border border-red-700 bg-red-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isDeleting ? "Deleting..." : "Delete item"}
+                </button>
+                <button
+                  type="button"
+                  onClick={onCancelDelete}
+                  disabled={isDeleting || !onCancelDelete}
+                  className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+              </>
             ) : (
-              <button
-                type="button"
-                onClick={onStartEdit}
-                disabled={!onStartEdit}
-                className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Edit
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={onStartEdit}
+                  disabled={!onStartEdit}
+                  className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={onRequestDelete}
+                  disabled={!onRequestDelete}
+                  className="inline-flex items-center rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Delete
+                </button>
+              </>
             )}
           </div>
+          {isConfirmingDelete ? (
+            <p className="text-sm leading-6 text-stone-600">
+              Delete this saved external item? This cannot be undone.
+            </p>
+          ) : null}
           {errorMessage ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {errorMessage}

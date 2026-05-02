@@ -22,6 +22,10 @@ interface ExternalItemResponseData {
   updatedAt: string;
 }
 
+interface DeleteExternalItemResponseData {
+  id: string;
+}
+
 interface UpdateExternalItemRequestBody {
   title?: unknown;
   source_url?: unknown;
@@ -381,5 +385,45 @@ export async function PATCH(
 
   return NextResponse.json<ApiResponse<ExternalItemResponseData>>({
     data: toExternalItemResponse(data as ExternalItemRow),
+  });
+}
+
+export async function DELETE(
+  _request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { supabase, user, errorResponse } = await getAuthenticatedUser();
+
+  if (errorResponse || !user) {
+    return errorResponse;
+  }
+
+  const { id } = await context.params;
+
+  if (!id) {
+    return notFound();
+  }
+
+  const { data, error } = await supabase
+    .from("external_items")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    return internalError("Failed to delete external item.");
+  }
+
+  if (!data?.id) {
+    return notFound();
+  }
+
+  return NextResponse.json<ApiResponse<DeleteExternalItemResponseData>>({
+    data: {
+      id: data.id,
+    },
+    message: "External item deleted.",
   });
 }
