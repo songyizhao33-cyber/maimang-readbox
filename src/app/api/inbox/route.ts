@@ -1,18 +1,60 @@
-import Link from "next/link";
+import { NextResponse } from "next/server";
 
+import type { ApiResponse } from "@/types/api";
 import type { Database } from "@/types/database";
 import type { InboxStatus } from "@/types/domain";
 
-import {
-  InboxItemCard,
-  type InboxListItemView,
-} from "@/components/inbox/inbox-item-card";
-import { ROUTES } from "@/lib/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
 type InboxItemRow = Database["public"]["Tables"]["inbox_items"]["Row"];
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
 type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
+
+interface InboxListItemData {
+  id: string;
+  sourceType: "platform_article";
+  articleId: string;
+  status: InboxStatus;
+  isStarred: boolean;
+  receivedAt: string;
+  article: {
+    id: string;
+    title: string;
+    subtitle: string | null;
+    excerpt: string | null;
+    coverUrl: string | null;
+    publishedAt: string | null;
+    author: {
+      id: string;
+      penName: string;
+      avatarUrl: string | null;
+    };
+  };
+}
+
+function authRequired() {
+  return NextResponse.json<ApiResponse<never>>(
+    {
+      error: {
+        code: "AUTH_REQUIRED",
+        message: "Authentication required.",
+      },
+    },
+    { status: 401 },
+  );
+}
+
+function internalError(message: string) {
+  return NextResponse.json<ApiResponse<never>>(
+    {
+      error: {
+        code: "INTERNAL_ERROR",
+        message,
+      },
+    },
+    { status: 500 },
+  );
+}
 
 async function listInboxItems(userId: string) {
   const supabase = await createClient();
@@ -36,7 +78,7 @@ async function listInboxItems(userId: string) {
   );
 
   if (platformInboxRows.length === 0) {
-    return { data: [] satisfies InboxListItemView[] };
+    return { data: [] satisfies InboxListItemData[] };
   }
 
   const articleIds = [...new Set(platformInboxRows.map((row) => row.article_id))];
@@ -83,7 +125,7 @@ async function listInboxItems(userId: string) {
     ]),
   );
 
-  const items = platformInboxRows.flatMap<InboxListItemView>((row) => {
+  const items = platformInboxRows.flatMap<InboxListItemData>((row) => {
     const article = articlesById.get(row.article_id);
 
     if (!article) {
@@ -95,8 +137,9 @@ async function listInboxItems(userId: string) {
     return [
       {
         id: row.id,
+        sourceType: "platform_article",
         articleId: article.id,
-        status: row.status as InboxStatus,
+        status: row.status,
         isStarred: row.is_starred,
         receivedAt: row.received_at,
         article: {
@@ -119,7 +162,7 @@ async function listInboxItems(userId: string) {
   return { data: items };
 }
 
-export default async function InboxPage() {
+export async function GET() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -127,74 +170,20 @@ export default async function InboxPage() {
   } = await supabase.auth.getUser();
 
   if (userError || !user?.id) {
-    return (
-      <section className="space-y-6">
-        <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
-          <div className="space-y-4">
-            <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Inbox
-            </div>
-            <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              Sign in to open your inbox
-            </h1>
-            <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Your subscribed articles are private to your account. Sign in first, then new
-              published work from authors you follow will appear here.
-            </p>
-            <Link
-              href={ROUTES.LOGIN}
-              className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
-            >
-              Go to login
-            </Link>
-          </div>
-        </div>
-      </section>
-    );
+    return authRequired();
   }
 
   const inboxResult = await listInboxItems(user.id);
 
   const inboxError = "error" in inboxResult ? inboxResult.error : null;
-  const inboxItems: InboxListItemView[] =
+  const inboxItems: InboxListItemData[] =
     "data" in inboxResult ? (inboxResult.data ?? []) : [];
 
-  return (
-    <section className="space-y-8">
-      <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
-        <div className="space-y-3">
-          <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Inbox
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Quiet reading inbox
-          </h1>
-          <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            This list only shows platform articles delivered from authors you subscribed to. It
-            stays chronological and intentionally does not turn into a feed, ranking surface, or
-            recommendation stream.
-          </p>
-        </div>
-      </div>
+  if (inboxError) {
+    return internalError(inboxError);
+  }
 
-      {inboxError ? (
-        <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-          {inboxError}
-        </div>
-      ) : inboxItems.length === 0 ? (
-        <div className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-8 text-sm text-stone-600">
-          <div className="space-y-2">
-            <div className="text-base font-medium text-stone-900">还没有收到文章</div>
-            <p>订阅作者后，新作品会出现在这里。</p>
-          </div>
-        </div>
-      ) : (
-        <div className="grid gap-5">
-          {inboxItems.map((item) => (
-            <InboxItemCard key={item.id} item={item} />
-          ))}
-        </div>
-      )}
-    </section>
-  );
+  return NextResponse.json<ApiResponse<InboxListItemData[]>>({
+    data: inboxItems,
+  });
 }
