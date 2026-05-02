@@ -45,6 +45,112 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingDraft, setEditingDraft] = useState<Record<string, ExternalItemView>>({});
+  const [pendingEditId, setPendingEditId] = useState<string | null>(null);
+  const [editErrorMessage, setEditErrorMessage] = useState<string | null>(null);
+
+  function getEditingItem(item: ExternalItemView) {
+    return editingDraft[item.id] ?? item;
+  }
+
+  function startEdit(item: ExternalItemView) {
+    setEditingId(item.id);
+    setEditErrorMessage(null);
+    setEditingDraft((current) => ({
+      ...current,
+      [item.id]: { ...item },
+    }));
+  }
+
+  function cancelEdit(itemId: string) {
+    setEditingId(null);
+    setPendingEditId(null);
+    setEditErrorMessage(null);
+    setEditingDraft((current) => {
+      const next = { ...current };
+      delete next[itemId];
+      return next;
+    });
+  }
+
+  function changeEditingField(
+    itemId: string,
+    field: "title" | "sourceUrl" | "sourcePlatform" | "authorName" | "excerpt",
+    value: string,
+  ) {
+    setEditingDraft((current) => {
+      const base = current[itemId] ?? items.find((item) => item.id === itemId);
+
+      if (!base) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [itemId]: {
+          ...base,
+          [field]: field === "title" ? value : value || null,
+        },
+      };
+    });
+  }
+
+  async function saveEdit(itemId: string) {
+    const draft = editingDraft[itemId];
+
+    if (!draft) {
+      return;
+    }
+
+    setPendingEditId(itemId);
+    setEditErrorMessage(null);
+
+    try {
+      const response = await fetch(`/api/external-items/${itemId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: draft.title,
+          source_url: draft.sourceUrl || null,
+          source_platform: draft.sourcePlatform || null,
+          author_name: draft.authorName || null,
+          excerpt: draft.excerpt || null,
+          content_type: draft.contentType,
+        }),
+      });
+
+      const result = (await response.json()) as ApiResponse<ExternalItemMutationData>;
+
+      if (!response.ok || !("data" in result) || !result.data) {
+        const message =
+          "error" in result && result.error?.message
+            ? result.error.message
+            : "Failed to update external item.";
+        setEditErrorMessage(message);
+        return;
+      }
+
+      setItems((current) =>
+        current.map((item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                ...result.data,
+              }
+            : item,
+        ),
+      );
+      cancelEdit(itemId);
+      setSuccessMessage("External item updated.");
+    } catch {
+      setEditErrorMessage("Failed to update external item.");
+    } finally {
+      setPendingEditId(null);
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -225,7 +331,17 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
       ) : (
         <div className="grid gap-5">
           {items.map((item) => (
-            <ExternalItemCard key={item.id} item={item} />
+            <ExternalItemCard
+              key={item.id}
+              item={getEditingItem(item)}
+              isEditing={editingId === item.id}
+              isPending={pendingEditId === item.id}
+              errorMessage={editingId === item.id ? editErrorMessage : null}
+              onStartEdit={() => startEdit(item)}
+              onCancelEdit={() => cancelEdit(item.id)}
+              onFieldChange={(field, value) => changeEditingField(item.id, field, value)}
+              onSaveEdit={() => saveEdit(item.id)}
+            />
           ))}
         </div>
       )}
