@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Database } from "@/types/database";
 import type { AuthorProfile } from "@/types/domain";
 
+import { AuthorSubscribeButton } from "@/components/author/author-subscribe-button";
 import { createClient } from "@/lib/supabase/server";
 
 type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
@@ -58,6 +59,23 @@ export default async function AuthorDetailPage({
     notFound();
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let isSubscribed = false;
+
+  if (user?.id) {
+    const { data: existingSubscription } = await supabase
+      .from("subscriptions")
+      .select("id")
+      .eq("reader_id", user.id)
+      .eq("author_id", authorRow.id)
+      .maybeSingle();
+
+    isSubscribed = !!existingSubscription;
+  }
+
   const author = toPublicAuthorProfile(authorRow);
 
   return (
@@ -94,16 +112,24 @@ export default async function AuthorDetailPage({
               {author.bio || "This author has not added a public bio yet."}
             </p>
 
-            {author.homepageUrl ? (
-              <a
-                href={author.homepageUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
-              >
-                Visit homepage
-              </a>
-            ) : null}
+            <div className="flex flex-wrap items-start gap-3">
+              {author.homepageUrl ? (
+                <a
+                  href={author.homepageUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
+                >
+                  Visit homepage
+                </a>
+              ) : null}
+
+              <AuthorSubscribeButton
+                authorId={author.id}
+                isAuthenticated={!!user?.id}
+                initialSubscribed={isSubscribed}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -112,19 +138,10 @@ export default async function AuthorDetailPage({
         <div className="space-y-3">
           <h2 className="text-xl font-semibold tracking-tight text-stone-950">Works</h2>
           <p className="max-w-2xl text-sm leading-7 text-stone-600">
-            Published works will appear here after T15 is completed. T13 only exposes the public
-            author profile and does not load real article data yet.
+            Published works will keep appearing here through the article reading flow. T20 and T21
+            only cover the minimal subscribe or unsubscribe relationship and do not implement
+            audience counts, ranking surfaces, or inbox delivery.
           </p>
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          <button
-            type="button"
-            disabled
-            className="inline-flex cursor-not-allowed items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-sm text-stone-400"
-          >
-            Subscription coming later
-          </button>
         </div>
       </div>
     </section>
