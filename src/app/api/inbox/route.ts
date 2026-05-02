@@ -63,6 +63,7 @@ async function listInboxItems(userId: string) {
     .select("id, user_id, source_type, article_id, status, is_starred, received_at")
     .eq("user_id", userId)
     .eq("source_type", "platform_article")
+    .neq("status", "archived")
     .order("received_at", { ascending: false })
     .limit(50);
 

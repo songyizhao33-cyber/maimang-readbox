@@ -3,10 +3,8 @@ import Link from "next/link";
 import type { Database } from "@/types/database";
 import type { InboxStatus } from "@/types/domain";
 
-import {
-  InboxItemCard,
-  type InboxListItemView,
-} from "@/components/inbox/inbox-item-card";
+import type { InboxListItemView } from "@/components/inbox/inbox-item-card";
+import { InboxList } from "@/components/inbox/inbox-list";
 import { ROUTES } from "@/lib/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,6 +19,7 @@ async function listInboxItems(userId: string) {
     .select("id, user_id, source_type, article_id, status, is_starred, received_at")
     .eq("user_id", userId)
     .eq("source_type", "platform_article")
+    .neq("status", "archived")
     .order("received_at", { ascending: false })
     .limit(50);
 
@@ -181,19 +180,8 @@ export default async function InboxPage() {
         <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
           {inboxError}
         </div>
-      ) : inboxItems.length === 0 ? (
-        <div className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-8 text-sm text-stone-600">
-          <div className="space-y-2">
-            <div className="text-base font-medium text-stone-900">还没有收到文章</div>
-            <p>订阅作者后，新作品会出现在这里。</p>
-          </div>
-        </div>
       ) : (
-        <div className="grid gap-5">
-          {inboxItems.map((item) => (
-            <InboxItemCard key={item.id} item={item} />
-          ))}
-        </div>
+        <InboxList initialItems={inboxItems} />
       )}
     </section>
   );
