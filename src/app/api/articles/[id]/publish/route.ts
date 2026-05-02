@@ -11,7 +11,7 @@ interface PublishArticleResponseData {
   id: string;
   status: "published";
   publishedAt: string;
-  inboxItemsCreated: 0;
+  inboxItemsCreated: number;
 }
 
 function authRequired() {
@@ -149,6 +149,41 @@ async function getOwnArticleContext(articleId: string) {
   };
 }
 
+interface PublishArticleRpcRow {
+  id: string;
+  status: "published";
+  published_at: string;
+  inbox_items_created: number;
+}
+
+type PublishArticleRpcInvoker = {
+  rpc(
+    fn: "publish_article_and_fanout",
+    args: { p_article_id: string },
+  ): {
+    single<T>(): Promise<{
+      data: T | null;
+      error: { message: string } | null;
+    }>;
+  };
+};
+
+function mapRpcErrorToResponse(message: string) {
+  if (message === "AUTH_REQUIRED") {
+    return authRequired();
+  }
+
+  if (message === "AUTHOR_PROFILE_NOT_FOUND" || message === "ARTICLE_NOT_FOUND") {
+    return notFound();
+  }
+
+  if (message === "ARTICLE_NOT_DRAFT") {
+    return conflict("Only draft articles can be published.");
+  }
+
+  return internalError("Failed to publish article.");
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -182,29 +217,27 @@ export async function POST(
     return conflict("Only draft articles can be published.");
   }
 
-  const publishedAt = new Date().toISOString();
-  const { data: publishedArticle, error: publishError } = await supabase
-    .from("articles")
-    .update({
-      status: "published",
-      published_at: publishedAt,
+  const rpcClient = supabase as typeof supabase & PublishArticleRpcInvoker;
+  const { data: rpcData, error: publishError } = await rpcClient
+    .rpc("publish_article_and_fanout", {
+      p_article_id: article.id,
     })
-    .eq("id", article.id)
-    .eq("author_id", article.author_id)
-    .eq("status", "draft")
-    .select("id, status, published_at")
-    .single();
+    .single<PublishArticleRpcRow>();
 
   if (publishError) {
+    return mapRpcErrorToResponse(publishError.message);
+  }
+
+  if (!rpcData) {
     return internalError("Failed to publish article.");
   }
 
   return NextResponse.json<ApiResponse<PublishArticleResponseData>>({
     data: {
-      id: publishedArticle.id,
+      id: rpcData.id,
       status: "published",
-      publishedAt: publishedArticle.published_at ?? publishedAt,
-      inboxItemsCreated: 0,
+      publishedAt: rpcData.published_at,
+      inboxItemsCreated: rpcData.inbox_items_created,
     },
     message: "Article published.",
   });
