@@ -123,14 +123,16 @@ export function InboxItemCard({
             >
               {starActionLabel}
             </button>
-            <button
-              type="button"
-              onClick={onArchive}
-              disabled={isPending || !onArchive}
-              className="inline-flex items-center rounded-full border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Archive
-            </button>
+            {onArchive ? (
+              <button
+                type="button"
+                onClick={onArchive}
+                disabled={isPending}
+                className="inline-flex items-center rounded-full border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Archive
+              </button>
+            ) : null}
           </div>
           {errorMessage ? (
             <p className="max-w-xs text-sm text-red-600 sm:text-right">{errorMessage}</p>

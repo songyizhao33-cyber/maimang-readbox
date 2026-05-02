@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Database } from "@/types/database";
 import type { InboxStatus } from "@/types/domain";
 
+import { InboxFilterTabs, type InboxFilter } from "@/components/inbox/inbox-filter-tabs";
 import type { InboxListItemView } from "@/components/inbox/inbox-item-card";
 import { InboxList } from "@/components/inbox/inbox-list";
 import { ROUTES } from "@/lib/constants/routes";
@@ -11,17 +12,50 @@ import { createClient } from "@/lib/supabase/server";
 type InboxItemRow = Database["public"]["Tables"]["inbox_items"]["Row"];
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
 type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
+const ALLOWED_FILTERS = new Set<InboxFilter>([
+  "active",
+  "unread",
+  "reading",
+  "starred",
+  "archived",
+  "all",
+]);
 
-async function listInboxItems(userId: string) {
+function normalizeFilter(rawValue: string | undefined): InboxFilter {
+  if (!rawValue) {
+    return "active";
+  }
+
+  if (ALLOWED_FILTERS.has(rawValue as InboxFilter)) {
+    return rawValue as InboxFilter;
+  }
+
+  return "active";
+}
+
+async function listInboxItems(userId: string, filter: InboxFilter) {
   const supabase = await createClient();
-  const { data: inboxRows, error: inboxError } = await supabase
+  let query = supabase
     .from("inbox_items")
     .select("id, user_id, source_type, article_id, status, is_starred, received_at")
     .eq("user_id", userId)
     .eq("source_type", "platform_article")
-    .neq("status", "archived")
     .order("received_at", { ascending: false })
     .limit(50);
+
+  if (filter === "active") {
+    query = query.in("status", ["unread", "reading"]);
+  } else if (filter === "unread") {
+    query = query.eq("status", "unread");
+  } else if (filter === "reading") {
+    query = query.eq("status", "reading");
+  } else if (filter === "starred") {
+    query = query.eq("is_starred", true).neq("status", "archived");
+  } else if (filter === "archived") {
+    query = query.eq("status", "archived");
+  }
+
+  const { data: inboxRows, error: inboxError } = await query;
 
   if (inboxError) {
     return { error: "Failed to load inbox items." };
@@ -118,7 +152,11 @@ async function listInboxItems(userId: string) {
   return { data: items };
 }
 
-export default async function InboxPage() {
+export default async function InboxPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -152,7 +190,12 @@ export default async function InboxPage() {
     );
   }
 
-  const inboxResult = await listInboxItems(user.id);
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const rawFilter = resolvedSearchParams?.filter;
+  const currentFilter = normalizeFilter(
+    Array.isArray(rawFilter) ? rawFilter[0] : rawFilter,
+  );
+  const inboxResult = await listInboxItems(user.id, currentFilter);
 
   const inboxError = "error" in inboxResult ? inboxResult.error : null;
   const inboxItems: InboxListItemView[] =
@@ -173,6 +216,7 @@ export default async function InboxPage() {
             stays chronological and intentionally does not turn into a feed, ranking surface, or
             recommendation stream.
           </p>
+          <InboxFilterTabs currentFilter={currentFilter} />
         </div>
       </div>
 
@@ -181,7 +225,11 @@ export default async function InboxPage() {
           {inboxError}
         </div>
       ) : (
-        <InboxList initialItems={inboxItems} />
+        <InboxList
+          key={currentFilter}
+          currentFilter={currentFilter}
+          initialItems={inboxItems}
+        />
       )}
     </section>
   );

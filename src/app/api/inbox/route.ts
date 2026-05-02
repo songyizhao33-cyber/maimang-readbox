@@ -9,6 +9,16 @@ import { createClient } from "@/lib/supabase/server";
 type InboxItemRow = Database["public"]["Tables"]["inbox_items"]["Row"];
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
 type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
+type InboxFilter = "active" | "unread" | "reading" | "starred" | "archived" | "all";
+
+const ALLOWED_FILTERS = new Set<InboxFilter>([
+  "active",
+  "unread",
+  "reading",
+  "starred",
+  "archived",
+  "all",
+]);
 
 interface InboxListItemData {
   id: string;
@@ -44,6 +54,18 @@ function authRequired() {
   );
 }
 
+function validationError(message: string) {
+  return NextResponse.json<ApiResponse<never>>(
+    {
+      error: {
+        code: "VALIDATION_ERROR",
+        message,
+      },
+    },
+    { status: 400 },
+  );
+}
+
 function internalError(message: string) {
   return NextResponse.json<ApiResponse<never>>(
     {
@@ -56,16 +78,41 @@ function internalError(message: string) {
   );
 }
 
-async function listInboxItems(userId: string) {
+function normalizeFilter(rawValue: string | null): InboxFilter | null {
+  if (!rawValue) {
+    return "active";
+  }
+
+  if (ALLOWED_FILTERS.has(rawValue as InboxFilter)) {
+    return rawValue as InboxFilter;
+  }
+
+  return null;
+}
+
+async function listInboxItems(userId: string, filter: InboxFilter) {
   const supabase = await createClient();
-  const { data: inboxRows, error: inboxError } = await supabase
+  let query = supabase
     .from("inbox_items")
     .select("id, user_id, source_type, article_id, status, is_starred, received_at")
     .eq("user_id", userId)
     .eq("source_type", "platform_article")
-    .neq("status", "archived")
     .order("received_at", { ascending: false })
     .limit(50);
+
+  if (filter === "active") {
+    query = query.in("status", ["unread", "reading"]);
+  } else if (filter === "unread") {
+    query = query.eq("status", "unread");
+  } else if (filter === "reading") {
+    query = query.eq("status", "reading");
+  } else if (filter === "starred") {
+    query = query.eq("is_starred", true).neq("status", "archived");
+  } else if (filter === "archived") {
+    query = query.eq("status", "archived");
+  }
+
+  const { data: inboxRows, error: inboxError } = await query;
 
   if (inboxError) {
     return { error: "Failed to load inbox items." };
@@ -163,7 +210,7 @@ async function listInboxItems(userId: string) {
   return { data: items };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -174,7 +221,16 @@ export async function GET() {
     return authRequired();
   }
 
-  const inboxResult = await listInboxItems(user.id);
+  const { searchParams } = new URL(request.url);
+  const filter = normalizeFilter(searchParams.get("filter"));
+
+  if (!filter) {
+    return validationError(
+      'Query parameter "filter" must be one of: active, unread, reading, starred, archived, all.',
+    );
+  }
+
+  const inboxResult = await listInboxItems(user.id, filter);
 
   const inboxError = "error" in inboxResult ? inboxResult.error : null;
   const inboxItems: InboxListItemData[] =
