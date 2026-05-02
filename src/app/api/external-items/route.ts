@@ -38,7 +38,9 @@ interface CreateExternalItemRequestBody {
 
 const CONTENT_TYPES: ContentType[] = ["link", "text", "image", "pdf"];
 const LEGAL_NOTE =
-  "Saved from user-provided external content metadata only. No automatic fetching or third-party full-text storage was performed.";
+  "Saved manually by you for personal reading. No automatic fetching was performed, and the source link should be used for the original reading experience.";
+const UNSUPPORTED_EXTRACTION_MESSAGE =
+  "This version supports only manual link metadata and short user-written excerpts. Automatic extraction or third-party full-text storage is not supported.";
 
 function authRequired() {
   return NextResponse.json<ApiResponse<never>>(
@@ -89,7 +91,7 @@ function toExternalItemResponse(row: ExternalItemRow): ExternalItemResponseData 
     authorName: row.source_author,
     excerpt: row.excerpt,
     contentType: row.content_type,
-    legalNote: row.legal_note,
+    legalNote: LEGAL_NOTE,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -231,11 +233,15 @@ export async function POST(request: Request) {
     rawBody.created_at !== undefined ||
     rawBody.updated_at !== undefined
   ) {
-    return validationError("id, user_id, created_at, and updated_at cannot be set manually.");
+    return validationError(
+      "id, user_id, created_at, and updated_at cannot be set manually in this version.",
+    );
   }
 
   if (rawBody.cover_url !== undefined) {
-    return validationError("cover_url is not supported by the current external_items schema.");
+    return validationError(
+      `cover_url is not supported. ${UNSUPPORTED_EXTRACTION_MESSAGE}`,
+    );
   }
 
   const keys = Object.keys(rawBody);

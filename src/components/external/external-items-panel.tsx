@@ -267,8 +267,16 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
               Save an external article
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-stone-600">
-              Save only the information you enter yourself. This form does not fetch metadata,
-              parse webpages, or store third-party full text automatically.
+              Save only the link, title, source, excerpt, or short note that you enter yourself.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm leading-7 text-stone-600">
+            <p>Only save the link details and short excerpts you enter yourself.</p>
+            <p>Do not paste or publicly redistribute unauthorized third-party full text.</p>
+            <p>
+              This shelf does not fetch webpages automatically or bypass logins, paywalls, or
+              anti-crawling restrictions.
             </p>
           </div>
 
@@ -306,6 +314,10 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
                   className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
                   placeholder="https://example.com/article"
                 />
+                <p className="text-xs leading-6 text-stone-500">
+                  Add the original source link so you can return to the publisher for the full
+                  reading experience.
+                </p>
               </label>
 
               <label className="space-y-2">
@@ -357,6 +369,10 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
                 placeholder="Your own note, quote, or short reminder"
                 maxLength={4000}
               />
+              <p className="text-xs leading-6 text-stone-500">
+                Use this for a short excerpt or your own note. Avoid pasting a complete third-party
+                article here.
+              </p>
             </label>
 
             {errorMessage ? (
@@ -378,6 +394,10 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
             >
               {isSubmitting ? "Saving..." : "Save to later"}
             </button>
+            <p className="text-xs leading-6 text-stone-500">
+              Saved as a personal reading item for organization only. This does not mean the
+              platform has parsed or imported the original content.
+            </p>
           </form>
         </div>
       </section>
