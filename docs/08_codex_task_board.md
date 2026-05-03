@@ -565,6 +565,48 @@ pnpm build
 ### T30-T34: 外部内容功能
 详见 docs/06_external_content_policy.md
 
+### T34: 实现外部内容详情页
+**状态**: 已完成
+**优先级**: 中
+**依赖**: T30, T31, T32, T33
+
+**任务描述**:
+- 实现登录用户私密查看自己保存的 external item 详情页
+- 支持从 `/later` 列表卡片进入 `/external-items/[id]`
+- 详情页展示手动保存的元数据与合规提示，不展示第三方全文
+
+**涉及文件**:
+- src/app/(reader)/external-items/[id]/page.tsx
+- src/components/external/external-item-card.tsx
+- src/lib/constants/routes.ts
+
+**验收标准**:
+- [x] 登录用户可以从 `/later` 进入自己的 `/external-items/[id]`
+- [x] 详情页显示 `title`、`sourcePlatform`、`authorName`、`sourceUrl`、`excerpt`、`contentType`、`legalNote`、`createdAt`、`updatedAt`
+- [x] 详情页提供“返回 Later”入口
+- [x] 详情页提供原文链接入口
+- [x] 未登录访问详情页显示登录引导
+- [x] 非本人 item 或不存在 item 返回 404 或等价 notFound 状态
+- [x] 不展示 `original_content` / `extracted_content`
+- [x] 不做自动抓取、OCR、AI 摘要、公开分享
+- [x] 不修改 schema / RLS
+- [x] `pnpm lint` 通过
+- [x] `corepack pnpm build` 通过
+
+**不做什么**:
+- ❌ 不做详情页编辑器增强
+- ❌ 不做自动抓取、URL metadata fetch、OpenGraph 抓取
+- ❌ 不做 OCR、AI 摘要、批量导入
+- ❌ 不做公开分享页、评论、推荐、热榜
+- ❌ 不展示第三方全文
+- ❌ 不修改数据库 schema、RLS policy、service role key 使用方式
+
+**验证命令**:
+```bash
+pnpm lint
+corepack pnpm build
+```
+
 ---
 
 ## Phase 4: 专题和笔记（中优先级）

@@ -6,6 +6,7 @@ export const ROUTES = {
 
   INBOX: "/inbox",
   LATER: "/later",
+  EXTERNAL_ITEM_DETAIL: (id: string) => `/external-items/${id}`,
   COLLECTIONS: "/collections",
   SETTINGS: "/settings",
   ARTICLE: (id: string) => `/articles/${id}`,

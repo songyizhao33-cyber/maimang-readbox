@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import type { ContentType } from "@/types/domain";
 
+import { ROUTES } from "@/lib/constants/routes";
+
 export interface ExternalItemView {
   id: string;
   title: string;
@@ -205,6 +207,12 @@ export function ExternalItemCard({
               </>
             ) : (
               <>
+                <Link
+                  href={ROUTES.EXTERNAL_ITEM_DETAIL(item.id)}
+                  className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
+                >
+                  View details
+                </Link>
                 <button
                   type="button"
                   onClick={onStartEdit}
