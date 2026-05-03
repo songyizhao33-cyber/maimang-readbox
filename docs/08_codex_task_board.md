@@ -614,6 +614,52 @@ corepack pnpm build
 ### T40-T45: 专题和笔记功能
 详见 docs/03_module_map.md
 
+### T40: 实现创建专题
+**状态**: 已完成
+**优先级**: 中
+**依赖**: T10
+
+**任务描述**:
+- 实现登录用户创建自己的 collection
+- 实现 `GET /api/collections` 返回当前用户自己的 collection 列表
+- 在 `/collections` 页面提供最小创建表单和当前用户专题列表
+- T40 只做 collection 本体，不做 `collection_items`，不把文章或 external item 加入专题
+
+**涉及文件**:
+- src/app/api/collections/route.ts
+- src/app/(reader)/collections/page.tsx
+- src/components/collections/collections-panel.tsx
+
+**验收标准**:
+- [x] T40 正式定义已补充到任务板
+- [x] 未登录 `POST /api/collections` 返回 401
+- [x] 未登录 `GET /api/collections` 返回 401
+- [x] 登录用户可以创建 collection
+- [x] 前端传 `user_id`、`id`、`created_at`、`updated_at` 会被拒绝
+- [x] 登录用户只能看到自己的 collections
+- [x] 同一用户重复 `name` 有明确错误处理
+- [x] `/collections` 页面能创建并展示当前用户专题
+- [x] 不实现编辑、删除、添加内容到专题
+- [x] 不修改 schema / RLS
+- [x] `pnpm lint` 通过
+- [x] `corepack pnpm build` 通过
+
+**不做什么**:
+- ❌ 不做 `PATCH /api/collections/:id`
+- ❌ 不做 `DELETE /api/collections/:id`
+- ❌ 不做 `POST /api/collections/:id/items`
+- ❌ 不做 `DELETE /api/collections/:id/items/:itemId`
+- ❌ 不做 articles / external_items 加入专题
+- ❌ 不做 notes / reflections / 标签 / 搜索 / 公开分享 / 协作专题
+- ❌ 不修改数据库 schema、RLS policy
+- ❌ 不使用 service role key
+
+**验证命令**:
+```bash
+pnpm lint
+corepack pnpm build
+```
+
 ---
 
 ## Phase 5: 管理与安全（低优先级）
