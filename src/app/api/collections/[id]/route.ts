@@ -6,18 +6,20 @@ import type { Collection } from "@/types/domain";
 
 import { createClient } from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic";
-
 type CollectionRow = Database["public"]["Tables"]["collections"]["Row"];
-type CollectionInsert = Database["public"]["Tables"]["collections"]["Insert"];
+type CollectionUpdate = Database["public"]["Tables"]["collections"]["Update"];
 
-interface CreateCollectionRequestBody {
+interface UpdateCollectionRequestBody {
   name?: unknown;
   description?: unknown;
   id?: unknown;
   user_id?: unknown;
   created_at?: unknown;
   updated_at?: unknown;
+}
+
+interface DeleteCollectionResponseData {
+  id: string;
 }
 
 type CollectionResponseData = Collection;
@@ -46,6 +48,18 @@ function validationError(message: string) {
   );
 }
 
+function notFound() {
+  return NextResponse.json<ApiResponse<never>>(
+    {
+      error: {
+        code: "NOT_FOUND",
+        message: "Collection not found.",
+      },
+    },
+    { status: 404 },
+  );
+}
+
 function conflictError(message: string) {
   return NextResponse.json<ApiResponse<never>>(
     {
@@ -70,7 +84,7 @@ function internalError(message: string) {
   );
 }
 
-function ensureObjectBody(body: unknown): body is CreateCollectionRequestBody {
+function ensureObjectBody(body: unknown): body is UpdateCollectionRequestBody {
   return !!body && typeof body === "object" && !Array.isArray(body);
 }
 
@@ -135,33 +149,20 @@ async function getAuthenticatedUser() {
   return { supabase, user, errorResponse: null };
 }
 
-export async function GET() {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
   const { supabase, user, errorResponse } = await getAuthenticatedUser();
 
   if (errorResponse || !user) {
     return errorResponse;
   }
 
-  const { data, error } = await supabase
-    .from("collections")
-    .select("id, user_id, name, description, created_at, updated_at")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const { id } = await context.params;
 
-  if (error) {
-    return internalError("Failed to load collections.");
-  }
-
-  return NextResponse.json<ApiResponse<CollectionResponseData[]>>({
-    data: (data ?? []).map((row) => toCollectionResponse(row as CollectionRow)),
-  });
-}
-
-export async function POST(request: Request) {
-  const { supabase, user, errorResponse } = await getAuthenticatedUser();
-
-  if (errorResponse || !user) {
-    return errorResponse;
+  if (!id) {
+    return notFound();
   }
 
   const rawBody = await request.json().catch(() => null);
@@ -177,53 +178,112 @@ export async function POST(request: Request) {
     rawBody.updated_at !== undefined
   ) {
     return validationError(
-      "id, user_id, created_at, and updated_at cannot be set manually.",
+      "id, user_id, created_at, and updated_at cannot be updated.",
     );
   }
 
   const keys = Object.keys(rawBody);
   const allowedKeys = new Set(["name", "description"]);
+
+  if (keys.length === 0) {
+    return validationError("Provide at least one editable field.");
+  }
+
   const unknownKey = keys.find((key) => !allowedKeys.has(key));
 
   if (unknownKey) {
     return validationError(`Field "${unknownKey}" is not allowed.`);
   }
 
-  const nameResult = normalizeName(rawBody.name);
-  if ("error" in nameResult && typeof nameResult.error === "string") {
-    return validationError(nameResult.error);
+  const updates: CollectionUpdate = {};
+
+  if ("name" in rawBody) {
+    const nameResult = normalizeName(rawBody.name);
+    if ("error" in nameResult && typeof nameResult.error === "string") {
+      return validationError(nameResult.error);
+    }
+    updates.name = nameResult.value;
   }
 
-  const descriptionResult = normalizeDescription(rawBody.description);
-  if ("error" in descriptionResult && typeof descriptionResult.error === "string") {
-    return validationError(descriptionResult.error);
+  if ("description" in rawBody) {
+    const descriptionResult = normalizeDescription(rawBody.description);
+    if ("error" in descriptionResult && typeof descriptionResult.error === "string") {
+      return validationError(descriptionResult.error);
+    }
+    updates.description = descriptionResult.value;
   }
 
-  const payload: CollectionInsert = {
-    user_id: user.id,
-    name: nameResult.value,
-    description: descriptionResult.value,
-  };
+  if (Object.keys(updates).length === 0) {
+    return validationError("Provide at least one editable field.");
+  }
 
   const { data, error } = await supabase
     .from("collections")
-    .insert(payload)
+    .update(updates)
+    .eq("id", id)
+    .eq("user_id", user.id)
     .select("id, user_id, name, description, created_at, updated_at")
-    .single();
+    .maybeSingle();
 
   if (error) {
     if (error.code === "23505") {
       return conflictError("A collection with this name already exists.");
     }
 
-    return internalError("Failed to create collection.");
+    return internalError("Failed to update collection.");
   }
 
-  return NextResponse.json<ApiResponse<CollectionResponseData>>(
-    {
-      data: toCollectionResponse(data as CollectionRow),
-      message: "Collection created.",
+  if (!data) {
+    return notFound();
+  }
+
+  return NextResponse.json<ApiResponse<CollectionResponseData>>({
+    data: toCollectionResponse(data as CollectionRow),
+  });
+}
+
+export async function DELETE(
+  _request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { supabase, user, errorResponse } = await getAuthenticatedUser();
+
+  if (errorResponse || !user) {
+    return errorResponse;
+  }
+
+  const { id } = await context.params;
+
+  if (!id) {
+    return notFound();
+  }
+
+  const { data, error } = await supabase
+    .from("collections")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    if (error.code === "23503") {
+      return conflictError(
+        "Collection cannot be deleted because it still contains dependent records.",
+      );
+    }
+
+    return internalError("Failed to delete collection.");
+  }
+
+  if (!data?.id) {
+    return notFound();
+  }
+
+  return NextResponse.json<ApiResponse<DeleteCollectionResponseData>>({
+    data: {
+      id: data.id,
     },
-    { status: 201 },
-  );
+    message: "Collection deleted.",
+  });
 }

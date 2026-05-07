@@ -3,14 +3,16 @@ import Link from "next/link";
 import type { Database } from "@/types/database";
 import type { ContentType } from "@/types/domain";
 
-import {
-  ExternalItemsPanel,
-} from "@/components/external/external-items-panel";
-import type { ExternalItemView } from "@/components/external/external-item-card";
+import { ExternalItemsPanel } from "@/components/external/external-items-panel";
+import type {
+  CollectionOption,
+  ExternalItemView,
+} from "@/components/external/external-item-card";
 import { ROUTES } from "@/lib/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
 type ExternalItemRow = Database["public"]["Tables"]["external_items"]["Row"];
+type CollectionRow = Database["public"]["Tables"]["collections"]["Row"];
 
 function toExternalItemView(row: ExternalItemRow): ExternalItemView {
   return {
@@ -44,6 +46,30 @@ async function listExternalItems(userId: string) {
 
   return {
     data: (data ?? []).map((row) => toExternalItemView(row as ExternalItemRow)),
+  };
+}
+
+function toCollectionOption(row: CollectionRow): CollectionOption {
+  return {
+    id: row.id,
+    name: row.name,
+  };
+}
+
+async function listCollections(userId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("collections")
+    .select("id, name")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return { error: "Failed to load collections." };
+  }
+
+  return {
+    data: (data ?? []).map((row) => toCollectionOption(row as CollectionRow)),
   };
 }
 
@@ -86,6 +112,10 @@ export default async function LaterPage() {
     "error" in externalItemsResult ? externalItemsResult.error : null;
   const externalItems: ExternalItemView[] =
     "data" in externalItemsResult ? (externalItemsResult.data ?? []) : [];
+  const collectionsResult = await listCollections(user.id);
+  const collectionsError = "error" in collectionsResult ? collectionsResult.error : null;
+  const collections: CollectionOption[] =
+    "data" in collectionsResult ? (collectionsResult.data ?? []) : [];
 
   return (
     <section className="space-y-8">
@@ -104,12 +134,12 @@ export default async function LaterPage() {
         </div>
       </div>
 
-      {externalItemsError ? (
+      {externalItemsError || collectionsError ? (
         <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-          {externalItemsError}
+          {externalItemsError ?? collectionsError}
         </div>
       ) : (
-        <ExternalItemsPanel initialItems={externalItems} />
+        <ExternalItemsPanel initialItems={externalItems} initialCollections={collections} />
       )}
     </section>
   );

@@ -662,6 +662,121 @@ corepack pnpm build
 
 ---
 
+### T41: 实现编辑和删除专题
+**状态**: 已完成
+**优先级**: 中
+**依赖**: T40
+
+**任务描述**:
+- 实现 `PATCH /api/collections/:id`，仅允许登录用户编辑自己的 collection 本体
+- 实现 `DELETE /api/collections/:id`，仅允许登录用户删除自己的 collection 本体
+- 在 `/collections` 页面提供最小编辑/删除交互
+- T41 只做 collection 本体，不做 `collection_items`，不把 articles 或 external_items 加入专题
+
+**涉及文件**:
+- src/app/api/collections/[id]/route.ts
+- src/components/collections/collections-panel.tsx
+- TASKS.md
+- docs/08_codex_task_board.md
+
+**验收标准**:
+- [x] 未登录 `PATCH /api/collections/:id` 返回 401
+- [x] 未登录 `DELETE /api/collections/:id` 返回 401
+- [x] 登录用户可以编辑自己的 collection
+- [x] 登录用户可以删除自己的 collection
+- [x] 编辑后 `GET /api/collections` 返回更新结果
+- [x] 删除后 `GET /api/collections` 不再返回该 collection
+- [x] 其他用户不能编辑或删除该 collection，返回 404
+- [x] 不存在 collection 返回 404
+- [x] 非法字段 `id` / `user_id` / `created_at` / `updated_at` 被拒绝
+- [x] 同一用户下重复 `name` 返回 409
+- [x] `/collections` 页面提供编辑入口
+- [x] `/collections` 页面提供删除入口
+- [x] 删除前有轻量确认
+- [x] 编辑/删除成功后列表即时更新
+- [x] 没有实现 `collection_items`
+- [x] 没有修改 schema / RLS
+- [x] `pnpm lint` 通过
+- [x] `corepack pnpm build` 通过
+
+**不做什么**:
+- 不做 `POST /api/collections/:id/items`
+- 不做 `DELETE /api/collections/:id/items/:itemId`
+- 不做 articles / external_items 加入专题
+- 不做 notes / reflections / 标签 / 搜索 / 公开分享 / 协作专题 / 推荐
+- 不修改数据库 schema、migration、RLS policy
+- 不使用 service role key
+
+**验证命令**:
+```bash
+pnpm lint
+corepack pnpm build
+```
+
+---
+
+### T42: 实现加入专题
+**状态**: 已完成
+**优先级**: 中
+**依赖**: T41
+
+**任务描述**:
+- 实现 `POST /api/collections/:id/items`，允许登录用户把内容加入自己的 collection
+- 实现 `DELETE /api/collections/:id/items/:itemId`，允许登录用户从自己的 collection 移除内容
+- 优先提供最小 UI 验证路径：在 `/later` 的 external item 卡片上加入 “Add to collection” 入口
+- T42 仅验证 external_item 的前端加入路径；article 仅做 API 支持，不做额外 UI
+
+**涉及文件**:
+- src/app/api/collections/[id]/items/route.ts
+- src/app/api/collections/[id]/items/[itemId]/route.ts
+- src/app/(reader)/later/page.tsx
+- src/components/external/external-items-panel.tsx
+- src/components/external/external-item-card.tsx
+- src/app/(reader)/collections/page.tsx
+- TASKS.md
+- docs/08_codex_task_board.md
+
+**验收标准**:
+- [x] 未登录 `POST /api/collections/:id/items` 返回 401
+- [x] 登录用户可以把自己的 external_item 加入自己的 collection
+- [x] 登录用户不能把别人的 external_item 加入自己的 collection
+- [x] 登录用户不能向别人的 collection 添加 item
+- [x] 登录用户可以把 published article 加入自己的 collection
+- [x] draft article 不能加入 collection
+- [x] 重复加入返回 409
+- [x] 登录用户可以从自己的 collection 移除 item
+- [x] 不能从别人的 collection 移除 item
+- [x] DELETE 只删除 `collection_items`，不删除 `articles` / `external_items`
+- [x] `/later` 提供最小 external item 加入专题入口
+- [x] 没有实现 notes / reflections / 标签 / 搜索 / 公开分享 / 协作专题 / 推荐
+- [x] 没有修改 schema / migration / RLS
+- [x] 没有使用 service role key
+- [x] `pnpm lint` 通过
+- [x] `corepack pnpm build` 通过
+
+**不做什么**:
+- 不做 notes / reflections
+- 不做标签系统
+- 不做搜索
+- 不做公开分享
+- 不做协作专题
+- 不做推荐
+- 不做专题公开页
+- 不做批量加入
+- 不做自动分类
+- 不做 `GET /api/collections/:id/items`
+- 不做 article 加入专题 UI
+- 不修改数据库 schema、migration、RLS policy
+- 不使用 service role key
+
+**验证命令**:
+```bash
+pnpm lint
+corepack pnpm build
+```
+
+---
+
 ## Phase 5: 管理与安全（低优先级）
 
 ### T50-T54: 管理后台功能
