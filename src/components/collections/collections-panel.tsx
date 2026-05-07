@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import type { ApiResponse } from "@/types/api";
+import { ROUTES } from "@/lib/constants/routes";
 
 export interface CollectionView {
   id: string;
@@ -10,10 +12,6 @@ export interface CollectionView {
   description: string | null;
   createdAt: string;
   updatedAt: string;
-}
-
-interface CollectionMutationData extends CollectionView {
-  userId: string;
 }
 
 interface DeleteCollectionData {
@@ -95,7 +93,7 @@ export function CollectionsPanel({
         }),
       });
 
-      const result = (await response.json()) as ApiResponse<CollectionMutationData>;
+      const result = (await response.json()) as ApiResponse<CollectionView>;
 
       if (!response.ok || !("data" in result) || !result.data) {
         const message =
@@ -143,7 +141,7 @@ export function CollectionsPanel({
         }),
       });
 
-      const result = (await response.json()) as ApiResponse<CollectionMutationData>;
+      const result = (await response.json()) as ApiResponse<CollectionView>;
 
       if (!response.ok || !("data" in result) || !result.data) {
         const message =
@@ -396,6 +394,12 @@ export function CollectionsPanel({
                           <span>Updated {formatDate(collection.updatedAt)}</span>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
+                          <Link
+                            href={ROUTES.COLLECTION_DETAIL(collection.id)}
+                            className="inline-flex items-center rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-300 hover:text-stone-950"
+                          >
+                            Open
+                          </Link>
                           <button
                             type="button"
                             onClick={() => startEditing(collection)}

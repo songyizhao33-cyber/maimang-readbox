@@ -8,6 +8,7 @@ export const ROUTES = {
   LATER: "/later",
   EXTERNAL_ITEM_DETAIL: (id: string) => `/external-items/${id}`,
   COLLECTIONS: "/collections",
+  COLLECTION_DETAIL: (id: string) => `/collections/${id}`,
   SETTINGS: "/settings",
   ARTICLE: (id: string) => `/articles/${id}`,
   AUTHOR_DETAIL: (id: string) => `/authors/${id}`,
