@@ -17,8 +17,22 @@ export interface ExternalItemView {
   updatedAt: string;
 }
 
+export interface CollectionOption {
+  id: string;
+  name: string;
+}
+
+interface CollectionFeedback {
+  message: string;
+  tone: "success" | "error";
+}
+
 interface ExternalItemCardProps {
   item: ExternalItemView;
+  collectionOptions?: CollectionOption[];
+  selectedCollectionId?: string;
+  isAddingToCollection?: boolean;
+  collectionFeedback?: CollectionFeedback | null;
   isEditing?: boolean;
   isPending?: boolean;
   isDeleting?: boolean;
@@ -29,6 +43,8 @@ interface ExternalItemCardProps {
   onRequestDelete?: () => void;
   onCancelDelete?: () => void;
   onConfirmDelete?: () => void;
+  onCollectionChange?: (collectionId: string) => void;
+  onAddToCollection?: () => void;
   onFieldChange?: (
     field: "title" | "sourceUrl" | "sourcePlatform" | "authorName" | "excerpt",
     value: string,
@@ -68,6 +84,10 @@ function formatContentType(contentType: ContentType) {
 
 export function ExternalItemCard({
   item,
+  collectionOptions = [],
+  selectedCollectionId = "",
+  isAddingToCollection = false,
+  collectionFeedback = null,
   isEditing = false,
   isPending = false,
   isDeleting = false,
@@ -78,6 +98,8 @@ export function ExternalItemCard({
   onRequestDelete,
   onCancelDelete,
   onConfirmDelete,
+  onCollectionChange,
+  onAddToCollection,
   onFieldChange,
   onSaveEdit,
 }: ExternalItemCardProps) {
@@ -165,6 +187,68 @@ export function ExternalItemCard({
             >
               Open source
             </Link>
+          ) : null}
+          {!isEditing && !isConfirmingDelete ? (
+            <div className="rounded-3xl border border-stone-200 bg-stone-50 p-4">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <div className="text-sm font-medium text-stone-900">Add to collection</div>
+                  <p className="text-xs leading-6 text-stone-500">
+                    Keep this saved link inside one of your private reading shelves.
+                  </p>
+                </div>
+
+                {collectionOptions.length === 0 ? (
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-stone-600">
+                    <span>Create a collection first.</span>
+                    <Link
+                      href={ROUTES.COLLECTIONS}
+                      className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-white"
+                    >
+                      Go to collections
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <label className="sr-only" htmlFor={`collection-${item.id}`}>
+                      Choose collection
+                    </label>
+                    <select
+                      id={`collection-${item.id}`}
+                      value={selectedCollectionId}
+                      onChange={(event) => onCollectionChange?.(event.target.value)}
+                      className="min-w-52 rounded-full border border-stone-300 bg-white px-4 py-2 text-sm text-stone-900 outline-none transition-colors focus:border-stone-400"
+                    >
+                      {collectionOptions.map((collection) => (
+                        <option key={collection.id} value={collection.id}>
+                          {collection.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={onAddToCollection}
+                      disabled={isAddingToCollection || !onAddToCollection || !selectedCollectionId}
+                      className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isAddingToCollection ? "Adding..." : "Add to collection"}
+                    </button>
+                  </div>
+                )}
+
+                {collectionFeedback ? (
+                  <div
+                    className={
+                      collectionFeedback.tone === "success"
+                        ? "rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+                        : "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                    }
+                  >
+                    {collectionFeedback.message}
+                  </div>
+                ) : null}
+              </div>
+            </div>
           ) : null}
           <div className="flex flex-wrap gap-2">
             {isEditing ? (

@@ -6,6 +6,7 @@ import type { ApiResponse } from "@/types/api";
 import type { ContentType } from "@/types/domain";
 
 import {
+  type CollectionOption,
   ExternalItemCard,
   type ExternalItemView,
 } from "@/components/external/external-item-card";
@@ -43,9 +44,30 @@ interface ExternalItemDeleteData {
   id: string;
 }
 
-export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalItemView[] }) {
+interface CollectionItemMutationData {
+  id: string;
+  collectionId: string;
+  itemType: "article" | "external_item";
+  articleId: string | null;
+  externalItemId: string | null;
+  createdAt: string;
+}
+
+interface CollectionFeedback {
+  message: string;
+  tone: "success" | "error";
+}
+
+export function ExternalItemsPanel({
+  initialItems,
+  initialCollections,
+}: {
+  initialItems: ExternalItemView[];
+  initialCollections: CollectionOption[];
+}) {
   const [form, setForm] = useState(INITIAL_FORM);
   const [items, setItems] = useState(initialItems);
+  const [collections] = useState(initialCollections);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -56,6 +78,11 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [deleteErrorMessage, setDeleteErrorMessage] = useState<string | null>(null);
+  const [selectedCollectionIds, setSelectedCollectionIds] = useState<Record<string, string>>({});
+  const [pendingCollectionItemId, setPendingCollectionItemId] = useState<string | null>(null);
+  const [collectionFeedback, setCollectionFeedback] = useState<
+    Record<string, CollectionFeedback | undefined>
+  >({});
 
   function getEditingItem(item: ExternalItemView) {
     return editingDraft[item.id] ?? item;
@@ -98,6 +125,21 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
     setConfirmingDeleteId(null);
     setPendingDeleteId(null);
     setDeleteErrorMessage(null);
+  }
+
+  function getSelectedCollectionId(itemId: string) {
+    return selectedCollectionIds[itemId] ?? collections[0]?.id ?? "";
+  }
+
+  function changeSelectedCollection(itemId: string, collectionId: string) {
+    setSelectedCollectionIds((current) => ({
+      ...current,
+      [itemId]: collectionId,
+    }));
+    setCollectionFeedback((current) => ({
+      ...current,
+      [itemId]: undefined,
+    }));
   }
 
   function changeEditingField(
@@ -212,6 +254,80 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
       setDeleteErrorMessage("Failed to delete external item.");
     } finally {
       setPendingDeleteId(null);
+    }
+  }
+
+  async function addToCollection(item: ExternalItemView) {
+    const collectionId = getSelectedCollectionId(item.id);
+
+    if (!collectionId) {
+      setCollectionFeedback((current) => ({
+        ...current,
+        [item.id]: {
+          message: "Create a collection first.",
+          tone: "error",
+        },
+      }));
+      return;
+    }
+
+    setPendingCollectionItemId(item.id);
+    setCollectionFeedback((current) => ({
+      ...current,
+      [item.id]: undefined,
+    }));
+
+    try {
+      const response = await fetch(`/api/collections/${collectionId}/items`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          itemType: "external_item",
+          externalItemId: item.id,
+        }),
+      });
+
+      const result = (await response.json()) as ApiResponse<CollectionItemMutationData>;
+
+      if (!response.ok || !("data" in result) || !result.data) {
+        const message =
+          "error" in result && result.error?.message
+            ? result.error.message
+            : "Failed to add item to collection.";
+        setCollectionFeedback((current) => ({
+          ...current,
+          [item.id]: {
+            message,
+            tone: "error",
+          },
+        }));
+        return;
+      }
+
+      const collectionName =
+        collections.find((collection) => collection.id === collectionId)?.name ?? "collection";
+      const message = `Added to "${collectionName}".`;
+
+      setCollectionFeedback((current) => ({
+        ...current,
+        [item.id]: {
+          message,
+          tone: "success",
+        },
+      }));
+      setSuccessMessage(message);
+    } catch {
+      setCollectionFeedback((current) => ({
+        ...current,
+        [item.id]: {
+          message: "Failed to add item to collection.",
+          tone: "error",
+        },
+      }));
+    } finally {
+      setPendingCollectionItemId(null);
     }
   }
 
@@ -417,6 +533,10 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
             <ExternalItemCard
               key={item.id}
               item={getEditingItem(item)}
+              collectionOptions={collections}
+              selectedCollectionId={getSelectedCollectionId(item.id)}
+              isAddingToCollection={pendingCollectionItemId === item.id}
+              collectionFeedback={collectionFeedback[item.id] ?? null}
               isEditing={editingId === item.id}
               isPending={pendingEditId === item.id}
               isDeleting={pendingDeleteId === item.id}
@@ -433,6 +553,10 @@ export function ExternalItemsPanel({ initialItems }: { initialItems: ExternalIte
               onRequestDelete={() => requestDelete(item.id)}
               onCancelDelete={cancelDelete}
               onConfirmDelete={() => confirmDelete(item.id)}
+              onCollectionChange={(collectionId) =>
+                changeSelectedCollection(item.id, collectionId)
+              }
+              onAddToCollection={() => addToCollection(item)}
               onFieldChange={(field, value) => changeEditingField(item.id, field, value)}
               onSaveEdit={() => saveEdit(item.id)}
             />
