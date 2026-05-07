@@ -422,7 +422,37 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      get_public_article_notes: {
+        Args: {
+          p_article_id: string;
+        };
+        Returns: {
+          id: string;
+          item_type: SavedItemType;
+          article_id: string | null;
+          selected_text: string | null;
+          content: string;
+          visibility: Visibility;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        }[];
+      };
+      get_public_article_reflections: {
+        Args: {
+          p_article_id: string;
+        };
+        Returns: {
+          id: string;
+          item_type: SavedItemType;
+          article_id: string | null;
+          content: string;
+          visibility: Visibility;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        }[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

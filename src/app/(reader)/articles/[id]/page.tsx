@@ -8,6 +8,14 @@ import {
   type ArticleNotesPanelInitialState,
 } from "@/components/article/article-notes-panel";
 import {
+  ArticlePublicNotesPanel,
+  type PublicArticleNoteView,
+} from "@/components/article/article-public-notes-panel";
+import {
+  ArticlePublicReflectionsPanel,
+  type PublicArticleReflectionView,
+} from "@/components/article/article-public-reflections-panel";
+import {
   ArticleReflectionsPanel,
   type ArticleReflectionsPanelInitialState,
 } from "@/components/article/article-reflections-panel";
@@ -19,6 +27,10 @@ type AuthorPublicRow = Pick<
   "id" | "pen_name" | "avatar_url"
 >;
 type NoteRow = Database["public"]["Tables"]["notes"]["Row"];
+type PublicNoteRpcRow =
+  Database["public"]["Functions"]["get_public_article_notes"]["Returns"][number];
+type PublicReflectionRpcRow =
+  Database["public"]["Functions"]["get_public_article_reflections"]["Returns"][number];
 type ReflectionRow = Database["public"]["Tables"]["reflections"]["Row"];
 
 function formatDate(value: string) {
@@ -55,6 +67,31 @@ function toInitialReflection(
     articleId: row.article_id ?? "",
     content: row.content,
     visibility: row.visibility,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toPublicNote(row: PublicNoteRpcRow): PublicArticleNoteView {
+  return {
+    id: row.id,
+    itemType: "article",
+    articleId: row.article_id,
+    selectedText: row.selected_text,
+    content: row.content,
+    visibility: "public",
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toPublicReflection(row: PublicReflectionRpcRow): PublicArticleReflectionView {
+  return {
+    id: row.id,
+    itemType: "article",
+    articleId: row.article_id,
+    content: row.content,
+    visibility: "public",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -103,10 +140,26 @@ export default async function ArticlePage({
   const isAuthenticated = Boolean(user?.id);
   const canManageNotes = isAuthenticated && (articleRow.status === "published" || isDraftPreview);
   const canManageReflections = canManageNotes;
+  let publicNotes: PublicArticleNoteView[] = [];
+  let publicReflections: PublicArticleReflectionView[] = [];
   let initialNotes: ArticleNotesPanelInitialState = [];
   let initialNotesErrorMessage: string | null = null;
   let initialReflections: ArticleReflectionsPanelInitialState = [];
   let initialReflectionsErrorMessage: string | null = null;
+
+  if (articleRow.status === "published") {
+    const { data: publicNotesRows } = await supabase.rpc("get_public_article_notes", {
+      p_article_id: articleRow.id,
+    });
+    const { data: publicReflectionsRows } = await supabase.rpc("get_public_article_reflections", {
+      p_article_id: articleRow.id,
+    });
+
+    publicNotes = (publicNotesRows ?? []).map((row) => toPublicNote(row as PublicNoteRpcRow));
+    publicReflections = (publicReflectionsRows ?? []).map((row) =>
+      toPublicReflection(row as PublicReflectionRpcRow),
+    );
+  }
 
   if (canManageNotes && user?.id) {
     const { data: notesRows, error: notesError } = await supabase
@@ -223,6 +276,13 @@ export default async function ArticlePage({
           {articleRow.content || "This article does not have body content yet."}
         </div>
       </section>
+
+      {articleRow.status === "published" ? (
+        <>
+          <ArticlePublicNotesPanel notes={publicNotes} />
+          <ArticlePublicReflectionsPanel reflections={publicReflections} />
+        </>
+      ) : null}
 
       <ArticleNotesPanel
         articleId={articleRow.id}
