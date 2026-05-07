@@ -5,7 +5,7 @@ export interface ArticleReflectionView {
   itemType: "article";
   articleId: string;
   content: string;
-  visibility: "private";
+  visibility: "private" | "public";
   createdAt: string;
   updatedAt: string;
 }
@@ -15,11 +15,13 @@ interface ArticleReflectionCardProps {
   isEditing?: boolean;
   isSaving?: boolean;
   isDeleting?: boolean;
+  isTogglingVisibility?: boolean;
   draftContent?: string;
   onStartEdit?: () => void;
   onCancelEdit?: () => void;
   onSaveEdit?: () => void;
   onDelete?: () => void;
+  onToggleVisibility?: () => void;
   onContentChange?: (value: string) => void;
 }
 
@@ -42,14 +44,19 @@ export function ArticleReflectionCard({
   isEditing = false,
   isSaving = false,
   isDeleting = false,
+  isTogglingVisibility = false,
   draftContent = "",
   onStartEdit,
   onCancelEdit,
   onSaveEdit,
   onDelete,
+  onToggleVisibility,
   onContentChange,
 }: ArticleReflectionCardProps) {
   const wasUpdated = reflection.updatedAt !== reflection.createdAt;
+  const visibilityLabel = reflection.visibility === "public" ? "Public" : "Private";
+  const visibilityActionLabel =
+    reflection.visibility === "public" ? "Make private" : "Make public";
 
   return (
     <article className="rounded-3xl border border-stone-200 bg-stone-50 p-5">
@@ -94,16 +101,31 @@ export function ArticleReflectionCard({
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="text-xs leading-6 text-stone-500">
-              <span>Created {formatDate(reflection.createdAt)}</span>
-              {wasUpdated ? <span> / Updated {formatDate(reflection.updatedAt)}</span> : null}
+            <div className="space-y-2 text-xs leading-6 text-stone-500">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-full border border-stone-300 bg-white px-3 py-1 font-medium text-stone-600">
+                  {visibilityLabel}
+                </span>
+              </div>
+              <div>
+                <span>Created {formatDate(reflection.createdAt)}</span>
+                {wasUpdated ? <span> / Updated {formatDate(reflection.updatedAt)}</span> : null}
+              </div>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
+                onClick={onToggleVisibility}
+                disabled={isDeleting || isSaving || isTogglingVisibility}
+                className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isTogglingVisibility ? "Saving..." : visibilityActionLabel}
+              </button>
+              <button
+                type="button"
                 onClick={onStartEdit}
-                disabled={isDeleting}
+                disabled={isDeleting || isTogglingVisibility}
                 className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Edit

@@ -40,7 +40,7 @@ function toInitialNote(row: NoteRow): ArticleNotesPanelInitialState[number] {
     articleId: row.article_id ?? "",
     selectedText: row.selected_text,
     content: row.content,
-    visibility: "private",
+    visibility: row.visibility,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -54,7 +54,7 @@ function toInitialReflection(
     itemType: "article",
     articleId: row.article_id ?? "",
     content: row.content,
-    visibility: "private",
+    visibility: row.visibility,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

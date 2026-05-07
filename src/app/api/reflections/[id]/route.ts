@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import type { ApiResponse } from "@/types/api";
 import type { Database } from "@/types/database";
-import type { Reflection } from "@/types/domain";
+import type { Reflection, Visibility } from "@/types/domain";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -121,6 +121,18 @@ function normalizeContent(value: unknown) {
   return { hasValue: true, value: normalized };
 }
 
+function normalizeVisibility(value: unknown) {
+  if (value === undefined) {
+    return { hasValue: false, value: "private" as Visibility };
+  }
+
+  if (value !== "private" && value !== "public") {
+    return { hasValue: true, error: 'visibility must be either "private" or "public".' };
+  }
+
+  return { hasValue: true, value: value as Visibility };
+}
+
 async function getAuthenticatedUser() {
   const supabase = await createClient();
   const {
@@ -192,7 +204,6 @@ export async function PATCH(
     rawBody.article_id !== undefined ||
     rawBody.externalItemId !== undefined ||
     rawBody.external_item_id !== undefined ||
-    rawBody.visibility !== undefined ||
     rawBody.createdAt !== undefined ||
     rawBody.created_at !== undefined ||
     rawBody.updatedAt !== undefined ||
@@ -206,7 +217,7 @@ export async function PATCH(
   }
 
   const keys = Object.keys(rawBody);
-  const allowedKeys = new Set(["content"]);
+  const allowedKeys = new Set(["content", "visibility"]);
   const unknownKey = keys.find((key) => !allowedKeys.has(key));
 
   if (unknownKey) {
@@ -218,10 +229,19 @@ export async function PATCH(
     return validationError(contentResult.error);
   }
 
+  const visibilityResult = normalizeVisibility(rawBody.visibility);
+  if ("error" in visibilityResult && typeof visibilityResult.error === "string") {
+    return validationError(visibilityResult.error);
+  }
+
   const updates: ReflectionUpdate = {};
 
   if (contentResult.hasValue) {
     updates.content = contentResult.value;
+  }
+
+  if (visibilityResult.hasValue) {
+    updates.visibility = visibilityResult.value;
   }
 
   if (Object.keys(updates).length === 0) {

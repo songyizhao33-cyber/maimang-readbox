@@ -50,6 +50,7 @@ export function ArticleReflectionsPanel({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingSaveId, setPendingSaveId] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingVisibilityId, setPendingVisibilityId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingDrafts, setEditingDrafts] = useState<Record<string, ReflectionDraftState>>({});
   const [content, setContent] = useState("");
@@ -202,6 +203,51 @@ export function ArticleReflectionsPanel({
     }
   }
 
+  async function toggleVisibility(reflection: ArticleReflectionView) {
+    clearMessages();
+    setPendingVisibilityId(reflection.id);
+
+    try {
+      const response = await fetch(`/api/reflections/${reflection.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          visibility: reflection.visibility === "public" ? "private" : "public",
+        }),
+      });
+
+      const result = (await response.json()) as ApiResponse<ArticleReflectionView>;
+
+      if (!response.ok || !("data" in result) || !result.data) {
+        const message =
+          "error" in result && result.error?.message
+            ? result.error.message
+            : "Failed to update reflection visibility.";
+        setErrorMessage(message);
+        return;
+      }
+
+      setReflections((current) =>
+        sortReflections(
+          current.map((currentReflection) =>
+            currentReflection.id === reflection.id ? result.data : currentReflection,
+          ),
+        ),
+      );
+      setSuccessMessage(
+        result.data.visibility === "public"
+          ? "Reflection is now public."
+          : "Reflection is now private.",
+      );
+    } catch {
+      setErrorMessage("Failed to update reflection visibility.");
+    } finally {
+      setPendingVisibilityId(null);
+    }
+  }
+
   return (
     <section className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)] sm:p-10">
       <div className="space-y-6">
@@ -214,8 +260,8 @@ export function ArticleReflectionsPanel({
               Reading reflections
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Keep a longer private response after reading. These reflections are visible only to
-              you.
+              Keep a longer response after reading. Reflections begin private, and you can switch
+              individual entries to public for published articles.
             </p>
           </div>
         </div>
@@ -287,11 +333,13 @@ export function ArticleReflectionsPanel({
                       isEditing={editingId === reflection.id}
                       isSaving={pendingSaveId === reflection.id}
                       isDeleting={pendingDeleteId === reflection.id}
+                      isTogglingVisibility={pendingVisibilityId === reflection.id}
                       draftContent={editingDraft.content}
                       onStartEdit={() => startEdit(reflection)}
                       onCancelEdit={cancelEdit}
                       onSaveEdit={() => saveEdit(reflection.id)}
                       onDelete={() => deleteReflection(reflection.id)}
+                      onToggleVisibility={() => toggleVisibility(reflection)}
                       onContentChange={(value) => changeEditingDraft(reflection.id, value)}
                     />
                   );

@@ -55,6 +55,7 @@ export function ArticleNotesPanel({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingSaveId, setPendingSaveId] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [pendingVisibilityId, setPendingVisibilityId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingDrafts, setEditingDrafts] = useState<Record<string, NoteDraftState>>({});
   const [content, setContent] = useState("");
@@ -215,6 +216,47 @@ export function ArticleNotesPanel({
     }
   }
 
+  async function toggleVisibility(note: ArticleNoteView) {
+    clearMessages();
+    setPendingVisibilityId(note.id);
+
+    try {
+      const response = await fetch(`/api/notes/${note.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          visibility: note.visibility === "public" ? "private" : "public",
+        }),
+      });
+
+      const result = (await response.json()) as ApiResponse<ArticleNoteView>;
+
+      if (!response.ok || !("data" in result) || !result.data) {
+        const message =
+          "error" in result && result.error?.message
+            ? result.error.message
+            : "Failed to update note visibility.";
+        setErrorMessage(message);
+        return;
+      }
+
+      setNotes((current) =>
+        sortNotes(
+          current.map((currentNote) => (currentNote.id === note.id ? result.data : currentNote)),
+        ),
+      );
+      setSuccessMessage(
+        result.data.visibility === "public" ? "Note is now public." : "Note is now private.",
+      );
+    } catch {
+      setErrorMessage("Failed to update note visibility.");
+    } finally {
+      setPendingVisibilityId(null);
+    }
+  }
+
   return (
     <section className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)] sm:p-10">
       <div className="space-y-6">
@@ -225,8 +267,8 @@ export function ArticleNotesPanel({
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight text-stone-950">Reading traces</h2>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Keep short quotes and private notes beside the article. These notes are visible only
-              to you.
+              Keep short quotes and notes beside the article. Notes begin private, and you can
+              switch individual entries to public when you want to share them on published pieces.
             </p>
           </div>
         </div>
@@ -315,12 +357,14 @@ export function ArticleNotesPanel({
                       isEditing={editingId === note.id}
                       isSaving={pendingSaveId === note.id}
                       isDeleting={pendingDeleteId === note.id}
+                      isTogglingVisibility={pendingVisibilityId === note.id}
                       draftContent={editingDraft.content}
                       draftSelectedText={editingDraft.selectedText}
                       onStartEdit={() => startEdit(note)}
                       onCancelEdit={cancelEdit}
                       onSaveEdit={() => saveEdit(note.id)}
                       onDelete={() => deleteNote(note.id)}
+                      onToggleVisibility={() => toggleVisibility(note)}
                       onContentChange={(value) => changeEditingDraft(note.id, "content", value)}
                       onSelectedTextChange={(value) =>
                         changeEditingDraft(note.id, "selectedText", value)
