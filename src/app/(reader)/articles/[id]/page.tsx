@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 
 import type { Database } from "@/types/database";
 
+import {
+  ArticleNotesPanel,
+  type ArticleNotesPanelInitialState,
+} from "@/components/article/article-notes-panel";
 import { ROUTES } from "@/lib/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -10,6 +14,7 @@ type AuthorPublicRow = Pick<
   Database["public"]["Tables"]["author_profiles"]["Row"],
   "id" | "pen_name" | "avatar_url"
 >;
+type NoteRow = Database["public"]["Tables"]["notes"]["Row"];
 
 function formatDate(value: string) {
   try {
@@ -21,6 +26,19 @@ function formatDate(value: string) {
   } catch {
     return value;
   }
+}
+
+function toInitialNote(row: NoteRow): ArticleNotesPanelInitialState[number] {
+  return {
+    id: row.id,
+    itemType: "article",
+    articleId: row.article_id ?? "",
+    selectedText: row.selected_text,
+    content: row.content,
+    visibility: "private",
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 export default async function ArticlePage({
@@ -58,8 +76,33 @@ export default async function ArticlePage({
     .eq("id", articleRow.author_id)
     .maybeSingle();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const author = authorProfile as AuthorPublicRow | null;
   const isDraftPreview = articleRow.status === "draft";
+  const isAuthenticated = Boolean(user?.id);
+  const canManageNotes = isAuthenticated && (articleRow.status === "published" || isDraftPreview);
+  let initialNotes: ArticleNotesPanelInitialState = [];
+  let initialNotesErrorMessage: string | null = null;
+
+  if (canManageNotes && user?.id) {
+    const { data: notesRows, error: notesError } = await supabase
+      .from("notes")
+      .select(
+        "id, user_id, item_type, article_id, external_item_id, selected_text, content, visibility, created_at, updated_at",
+      )
+      .eq("user_id", user.id)
+      .eq("item_type", "article")
+      .eq("article_id", articleRow.id)
+      .order("updated_at", { ascending: false });
+
+    if (notesError) {
+      initialNotesErrorMessage = "Failed to load notes.";
+    } else {
+      initialNotes = (notesRows ?? []).map((row) => toInitialNote(row as NoteRow));
+    }
+  }
 
   return (
     <article className="space-y-8">
@@ -142,6 +185,14 @@ export default async function ArticlePage({
           {articleRow.content || "This article does not have body content yet."}
         </div>
       </section>
+
+      <ArticleNotesPanel
+        articleId={articleRow.id}
+        canManageNotes={canManageNotes}
+        initialErrorMessage={initialNotesErrorMessage}
+        initialNotes={initialNotes}
+        isAuthenticated={isAuthenticated}
+      />
     </article>
   );
 }

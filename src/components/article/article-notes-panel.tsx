@@ -1,0 +1,338 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+
+import type { ApiResponse } from "@/types/api";
+
+import {
+  ArticleNoteCard,
+  type ArticleNoteView,
+} from "@/components/article/article-note-card";
+import { ROUTES } from "@/lib/constants/routes";
+
+export type ArticleNotesPanelInitialState = ArticleNoteView[];
+
+interface ArticleNotesPanelProps {
+  articleId: string;
+  canManageNotes: boolean;
+  initialErrorMessage: string | null;
+  initialNotes: ArticleNotesPanelInitialState;
+  isAuthenticated: boolean;
+}
+
+interface NoteMutationRequest {
+  content: string;
+  selectedText: string | null;
+}
+
+interface NoteDraftState {
+  content: string;
+  selectedText: string;
+}
+
+function toDraft(note: ArticleNoteView): NoteDraftState {
+  return {
+    content: note.content,
+    selectedText: note.selectedText ?? "",
+  };
+}
+
+function sortNotes(notes: ArticleNoteView[]) {
+  return [...notes].sort((left, right) => {
+    return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+  });
+}
+
+export function ArticleNotesPanel({
+  articleId,
+  canManageNotes,
+  initialErrorMessage,
+  initialNotes,
+  isAuthenticated,
+}: ArticleNotesPanelProps) {
+  const [notes, setNotes] = useState<ArticleNoteView[]>(() => sortNotes(initialNotes));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingSaveId, setPendingSaveId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingDrafts, setEditingDrafts] = useState<Record<string, NoteDraftState>>({});
+  const [content, setContent] = useState("");
+  const [selectedText, setSelectedText] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(initialErrorMessage);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  function clearMessages() {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+  }
+
+  function startEdit(note: ArticleNoteView) {
+    clearMessages();
+    setEditingId(note.id);
+    setEditingDrafts((current) => ({
+      ...current,
+      [note.id]: toDraft(note),
+    }));
+  }
+
+  function cancelEdit() {
+    clearMessages();
+    setEditingId(null);
+  }
+
+  function changeEditingDraft(noteId: string, field: keyof NoteDraftState, value: string) {
+    setEditingDrafts((current) => ({
+      ...current,
+      [noteId]: {
+        ...(current[noteId] ?? { content: "", selectedText: "" }),
+        [field]: value,
+      },
+    }));
+  }
+
+  function buildMutationRequest(input: NoteDraftState): NoteMutationRequest {
+    const normalizedSelectedText = input.selectedText.trim();
+
+    return {
+      content: input.content,
+      selectedText: normalizedSelectedText ? normalizedSelectedText : null,
+    };
+  }
+
+  async function handleCreateNote(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    clearMessages();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          itemType: "article",
+          articleId,
+          content,
+          selectedText: selectedText.trim() ? selectedText : null,
+        }),
+      });
+
+      const result = (await response.json()) as ApiResponse<ArticleNoteView>;
+
+      if (!response.ok || !("data" in result) || !result.data) {
+        const message =
+          "error" in result && result.error?.message
+            ? result.error.message
+            : "Failed to create note.";
+        setErrorMessage(message);
+        return;
+      }
+
+      setNotes((current) => sortNotes([result.data, ...current]));
+      setContent("");
+      setSelectedText("");
+      setSuccessMessage("Note created.");
+    } catch {
+      setErrorMessage("Failed to create note.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function saveEdit(noteId: string) {
+    const draft = editingDrafts[noteId];
+
+    if (!draft) {
+      return;
+    }
+
+    clearMessages();
+    setPendingSaveId(noteId);
+
+    try {
+      const response = await fetch(`/api/notes/${noteId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(buildMutationRequest(draft)),
+      });
+
+      const result = (await response.json()) as ApiResponse<ArticleNoteView>;
+
+      if (!response.ok || !("data" in result) || !result.data) {
+        const message =
+          "error" in result && result.error?.message
+            ? result.error.message
+            : "Failed to update note.";
+        setErrorMessage(message);
+        return;
+      }
+
+      setNotes((current) =>
+        sortNotes(current.map((note) => (note.id === noteId ? result.data : note))),
+      );
+      setEditingId(null);
+      setSuccessMessage("Note updated.");
+    } catch {
+      setErrorMessage("Failed to update note.");
+    } finally {
+      setPendingSaveId(null);
+    }
+  }
+
+  async function deleteNote(noteId: string) {
+    clearMessages();
+    setPendingDeleteId(noteId);
+
+    try {
+      const response = await fetch(`/api/notes/${noteId}`, {
+        method: "DELETE",
+      });
+
+      const result = (await response.json()) as ApiResponse<{ id: string }>;
+
+      if (!response.ok || !("data" in result) || !result.data) {
+        const message =
+          "error" in result && result.error?.message
+            ? result.error.message
+            : "Failed to delete note.";
+        setErrorMessage(message);
+        return;
+      }
+
+      setNotes((current) => current.filter((note) => note.id !== noteId));
+      if (editingId === noteId) {
+        setEditingId(null);
+      }
+      setSuccessMessage("Note deleted.");
+    } catch {
+      setErrorMessage("Failed to delete note.");
+    } finally {
+      setPendingDeleteId(null);
+    }
+  }
+
+  return (
+    <section className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)] sm:p-10">
+      <div className="space-y-6">
+        <div className="space-y-3">
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
+            Private notes
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold tracking-tight text-stone-950">Reading traces</h2>
+            <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
+              Keep short quotes and private notes beside the article. These notes are visible only
+              to you.
+            </p>
+          </div>
+        </div>
+
+        {!isAuthenticated ? (
+          <div className="rounded-3xl border border-stone-200 bg-stone-50 p-5 text-sm leading-7 text-stone-600">
+            <p>Sign in to keep private notes for this article.</p>
+            <Link
+              href={ROUTES.LOGIN}
+              className="mt-4 inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 font-medium text-stone-50 transition-colors hover:bg-stone-800"
+            >
+              Go to login
+            </Link>
+          </div>
+        ) : !canManageNotes ? null : (
+          <>
+            <form className="space-y-4" onSubmit={handleCreateNote}>
+              <div className="space-y-2">
+                <label
+                  htmlFor={`article-note-selected-text-${articleId}`}
+                  className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400"
+                >
+                  Selected text
+                </label>
+                <textarea
+                  id={`article-note-selected-text-${articleId}`}
+                  value={selectedText}
+                  onChange={(event) => setSelectedText(event.target.value)}
+                  rows={3}
+                  placeholder="Optional quote or line you want to remember."
+                  className="w-full rounded-3xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-800 outline-none transition-colors focus:border-stone-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor={`article-note-content-${articleId}`}
+                  className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400"
+                >
+                  Note
+                </label>
+                <textarea
+                  id={`article-note-content-${articleId}`}
+                  value={content}
+                  onChange={(event) => setContent(event.target.value)}
+                  rows={5}
+                  placeholder="Keep a private note for this article."
+                  className="w-full rounded-3xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm leading-7 text-stone-800 outline-none transition-colors focus:border-stone-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmitting ? "Saving..." : "Save note"}
+              </button>
+            </form>
+
+            {errorMessage ? (
+              <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+                {errorMessage}
+              </div>
+            ) : null}
+
+            {successMessage ? (
+              <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
+                {successMessage}
+              </div>
+            ) : null}
+
+            {notes.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-stone-200 bg-stone-50 px-5 py-6 text-sm leading-7 text-stone-500">
+                No notes yet. Your notes stay private to your account.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {notes.map((note) => {
+                  const editingDraft = editingDrafts[note.id] ?? toDraft(note);
+
+                  return (
+                    <ArticleNoteCard
+                      key={note.id}
+                      note={note}
+                      isEditing={editingId === note.id}
+                      isSaving={pendingSaveId === note.id}
+                      isDeleting={pendingDeleteId === note.id}
+                      draftContent={editingDraft.content}
+                      draftSelectedText={editingDraft.selectedText}
+                      onStartEdit={() => startEdit(note)}
+                      onCancelEdit={cancelEdit}
+                      onSaveEdit={() => saveEdit(note.id)}
+                      onDelete={() => deleteNote(note.id)}
+                      onContentChange={(value) => changeEditingDraft(note.id, "content", value)}
+                      onSelectedTextChange={(value) =>
+                        changeEditingDraft(note.id, "selectedText", value)
+                      }
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
