@@ -7,6 +7,10 @@ import {
   ArticleNotesPanel,
   type ArticleNotesPanelInitialState,
 } from "@/components/article/article-notes-panel";
+import {
+  ArticleReflectionsPanel,
+  type ArticleReflectionsPanelInitialState,
+} from "@/components/article/article-reflections-panel";
 import { ROUTES } from "@/lib/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,6 +19,7 @@ type AuthorPublicRow = Pick<
   "id" | "pen_name" | "avatar_url"
 >;
 type NoteRow = Database["public"]["Tables"]["notes"]["Row"];
+type ReflectionRow = Database["public"]["Tables"]["reflections"]["Row"];
 
 function formatDate(value: string) {
   try {
@@ -34,6 +39,20 @@ function toInitialNote(row: NoteRow): ArticleNotesPanelInitialState[number] {
     itemType: "article",
     articleId: row.article_id ?? "",
     selectedText: row.selected_text,
+    content: row.content,
+    visibility: "private",
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toInitialReflection(
+  row: ReflectionRow,
+): ArticleReflectionsPanelInitialState[number] {
+  return {
+    id: row.id,
+    itemType: "article",
+    articleId: row.article_id ?? "",
     content: row.content,
     visibility: "private",
     createdAt: row.created_at,
@@ -83,8 +102,11 @@ export default async function ArticlePage({
   const isDraftPreview = articleRow.status === "draft";
   const isAuthenticated = Boolean(user?.id);
   const canManageNotes = isAuthenticated && (articleRow.status === "published" || isDraftPreview);
+  const canManageReflections = canManageNotes;
   let initialNotes: ArticleNotesPanelInitialState = [];
   let initialNotesErrorMessage: string | null = null;
+  let initialReflections: ArticleReflectionsPanelInitialState = [];
+  let initialReflectionsErrorMessage: string | null = null;
 
   if (canManageNotes && user?.id) {
     const { data: notesRows, error: notesError } = await supabase
@@ -101,6 +123,22 @@ export default async function ArticlePage({
       initialNotesErrorMessage = "Failed to load notes.";
     } else {
       initialNotes = (notesRows ?? []).map((row) => toInitialNote(row as NoteRow));
+    }
+
+    const { data: reflectionsRows, error: reflectionsError } = await supabase
+      .from("reflections")
+      .select("id, item_type, article_id, content, visibility, created_at, updated_at")
+      .eq("user_id", user.id)
+      .eq("item_type", "article")
+      .eq("article_id", articleRow.id)
+      .order("updated_at", { ascending: false });
+
+    if (reflectionsError) {
+      initialReflectionsErrorMessage = "Failed to load reflections.";
+    } else {
+      initialReflections = (reflectionsRows ?? []).map((row) =>
+        toInitialReflection(row as ReflectionRow),
+      );
     }
   }
 
@@ -191,6 +229,14 @@ export default async function ArticlePage({
         canManageNotes={canManageNotes}
         initialErrorMessage={initialNotesErrorMessage}
         initialNotes={initialNotes}
+        isAuthenticated={isAuthenticated}
+      />
+
+      <ArticleReflectionsPanel
+        articleId={articleRow.id}
+        canManageReflections={canManageReflections}
+        initialErrorMessage={initialReflectionsErrorMessage}
+        initialReflections={initialReflections}
         isAuthenticated={isAuthenticated}
       />
     </article>
