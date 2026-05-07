@@ -10,6 +10,10 @@ export const dynamic = "force-dynamic";
 
 type NoteRow = Database["public"]["Tables"]["notes"]["Row"];
 type NoteUpdate = Database["public"]["Tables"]["notes"]["Update"];
+type PrivateArticleNoteResponse = Pick<
+  Note,
+  "id" | "itemType" | "articleId" | "selectedText" | "content" | "visibility" | "createdAt" | "updatedAt"
+>;
 
 interface UpdateNoteRequestBody {
   content?: unknown;
@@ -86,13 +90,11 @@ function ensureObjectBody(body: unknown): body is UpdateNoteRequestBody {
   return !!body && typeof body === "object" && !Array.isArray(body);
 }
 
-function toNoteResponse(row: NoteRow): Note {
+function toNoteResponse(row: NoteRow): PrivateArticleNoteResponse {
   return {
     id: row.id,
-    userId: row.user_id,
     itemType: row.item_type,
     articleId: row.article_id,
-    externalItemId: row.external_item_id,
     selectedText: row.selected_text,
     content: row.content,
     visibility: row.visibility,
@@ -250,7 +252,7 @@ export async function PATCH(
   }
 
   if (Object.keys(updates).length === 0) {
-    return NextResponse.json<ApiResponse<Note>>({
+    return NextResponse.json<ApiResponse<PrivateArticleNoteResponse>>({
       data: toNoteResponse(noteLookup.data),
     });
   }
@@ -271,7 +273,7 @@ export async function PATCH(
     return internalError("Failed to update note.");
   }
 
-  return NextResponse.json<ApiResponse<Note>>({
+  return NextResponse.json<ApiResponse<PrivateArticleNoteResponse>>({
     data: toNoteResponse(data as NoteRow),
     message: "Note updated.",
   });

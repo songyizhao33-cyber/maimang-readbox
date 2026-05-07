@@ -13,6 +13,10 @@ type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
 type NoteInsert = Database["public"]["Tables"]["notes"]["Insert"];
 type NoteItemType = Extract<Database["public"]["Tables"]["notes"]["Row"]["item_type"], "article">;
 type NoteRow = Database["public"]["Tables"]["notes"]["Row"];
+type PrivateArticleNoteResponse = Pick<
+  Note,
+  "id" | "itemType" | "articleId" | "selectedText" | "content" | "visibility" | "createdAt" | "updatedAt"
+>;
 
 const ARTICLE_ITEM_TYPE: NoteItemType = "article";
 
@@ -89,13 +93,11 @@ function ensureObjectBody(body: unknown): body is CreateNoteRequestBody {
   return !!body && typeof body === "object" && !Array.isArray(body);
 }
 
-function toNoteResponse(row: NoteRow): Note {
+function toNoteResponse(row: NoteRow): PrivateArticleNoteResponse {
   return {
     id: row.id,
-    userId: row.user_id,
     itemType: row.item_type,
     articleId: row.article_id,
-    externalItemId: row.external_item_id,
     selectedText: row.selected_text,
     content: row.content,
     visibility: row.visibility,
@@ -257,7 +259,7 @@ export async function GET(request: Request) {
     return internalError("Failed to load notes.");
   }
 
-  return NextResponse.json<ApiResponse<Note[]>>({
+  return NextResponse.json<ApiResponse<PrivateArticleNoteResponse[]>>({
     data: (data ?? []).map((row) => toNoteResponse(row as NoteRow)),
   });
 }
@@ -352,7 +354,7 @@ export async function POST(request: Request) {
     return internalError("Failed to create note.");
   }
 
-  return NextResponse.json<ApiResponse<Note>>(
+  return NextResponse.json<ApiResponse<PrivateArticleNoteResponse>>(
     {
       data: toNoteResponse(data as NoteRow),
       message: "Note created.",
