@@ -10,9 +10,16 @@ export const dynamic = "force-dynamic";
 
 type ReflectionRow = Database["public"]["Tables"]["reflections"]["Row"];
 type ReflectionUpdate = Database["public"]["Tables"]["reflections"]["Update"];
-type PrivateArticleReflectionResponse = Pick<
+type PrivateReflectionResponse = Pick<
   Reflection,
-  "id" | "itemType" | "articleId" | "content" | "visibility" | "createdAt" | "updatedAt"
+  | "id"
+  | "itemType"
+  | "articleId"
+  | "externalItemId"
+  | "content"
+  | "visibility"
+  | "createdAt"
+  | "updatedAt"
 >;
 
 interface UpdateReflectionRequestBody {
@@ -91,11 +98,12 @@ function ensureObjectBody(body: unknown): body is UpdateReflectionRequestBody {
   return !!body && typeof body === "object" && !Array.isArray(body);
 }
 
-function toReflectionResponse(row: ReflectionRow): PrivateArticleReflectionResponse {
+function toReflectionResponse(row: ReflectionRow): PrivateReflectionResponse {
   return {
     id: row.id,
     itemType: row.item_type,
     articleId: row.article_id,
+    externalItemId: row.external_item_id,
     content: row.content,
     visibility: row.visibility,
     createdAt: row.created_at,
@@ -154,7 +162,9 @@ async function getOwnedReflection(
 ) {
   const { data, error } = await supabase
     .from("reflections")
-    .select("id, item_type, article_id, content, visibility, created_at, updated_at")
+    .select(
+      "id, item_type, article_id, external_item_id, content, visibility, created_at, updated_at",
+    )
     .eq("id", reflectionId)
     .eq("user_id", userId)
     .maybeSingle();
@@ -212,7 +222,7 @@ export async function PATCH(
     rawBody.note_id !== undefined
   ) {
     return validationError(
-      "id, userId, user_id, itemType, item_type, articleId, article_id, externalItemId, external_item_id, visibility, createdAt, created_at, updatedAt, updated_at, noteId, and note_id are not allowed.",
+      "id, userId, user_id, itemType, item_type, articleId, article_id, externalItemId, external_item_id, createdAt, created_at, updatedAt, updated_at, noteId, and note_id are not allowed.",
     );
   }
 
@@ -245,7 +255,7 @@ export async function PATCH(
   }
 
   if (Object.keys(updates).length === 0) {
-    return NextResponse.json<ApiResponse<PrivateArticleReflectionResponse>>({
+    return NextResponse.json<ApiResponse<PrivateReflectionResponse>>({
       data: toReflectionResponse(reflectionLookup.data),
     });
   }
@@ -257,14 +267,16 @@ export async function PATCH(
     .update(updates)
     .eq("id", id)
     .eq("user_id", user.id)
-    .select("id, item_type, article_id, content, visibility, created_at, updated_at")
+    .select(
+      "id, item_type, article_id, external_item_id, content, visibility, created_at, updated_at",
+    )
     .single();
 
   if (error) {
     return internalError("Failed to update reflection.");
   }
 
-  return NextResponse.json<ApiResponse<PrivateArticleReflectionResponse>>({
+  return NextResponse.json<ApiResponse<PrivateReflectionResponse>>({
     data: toReflectionResponse(data as ReflectionRow),
     message: "Reflection updated.",
   });

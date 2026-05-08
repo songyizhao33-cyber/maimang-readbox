@@ -8,6 +8,10 @@ import {
   ExternalItemNotesPanel,
   type ExternalItemNotesPanelInitialState,
 } from "@/components/external/external-item-notes-panel";
+import {
+  ExternalItemReflectionsPanel,
+  type ExternalItemReflectionsPanelInitialState,
+} from "@/components/external/external-item-reflections-panel";
 import { ROUTES } from "@/lib/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,6 +29,7 @@ type ExternalItemDetailRow = Pick<
   | "updated_at"
 >;
 type NoteRow = Database["public"]["Tables"]["notes"]["Row"];
+type ReflectionRow = Database["public"]["Tables"]["reflections"]["Row"];
 
 function formatDate(value: string) {
   try {
@@ -85,6 +90,21 @@ function toInitialNote(row: NoteRow): ExternalItemNotesPanelInitialState[number]
     articleId: null,
     externalItemId: row.external_item_id ?? "",
     selectedText: row.selected_text,
+    content: row.content,
+    visibility: row.visibility,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toInitialReflection(
+  row: ReflectionRow,
+): ExternalItemReflectionsPanelInitialState[number] {
+  return {
+    id: row.id,
+    itemType: "external_item",
+    articleId: null,
+    externalItemId: row.external_item_id ?? "",
     content: row.content,
     visibility: row.visibility,
     createdAt: row.created_at,
@@ -173,6 +193,8 @@ export default async function ExternalItemDetailPage({
   const item = result.data;
   let initialNotes: ExternalItemNotesPanelInitialState = [];
   let initialNotesErrorMessage: string | null = null;
+  let initialReflections: ExternalItemReflectionsPanelInitialState = [];
+  let initialReflectionsErrorMessage: string | null = null;
 
   const { data: notesRows, error: notesError } = await supabase
     .from("notes")
@@ -188,6 +210,22 @@ export default async function ExternalItemDetailPage({
     initialNotesErrorMessage = "Failed to load notes.";
   } else {
     initialNotes = (notesRows ?? []).map((row) => toInitialNote(row as NoteRow));
+  }
+
+  const { data: reflectionsRows, error: reflectionsError } = await supabase
+    .from("reflections")
+    .select("id, item_type, article_id, external_item_id, content, visibility, created_at, updated_at")
+    .eq("user_id", user.id)
+    .eq("item_type", "external_item")
+    .eq("external_item_id", item.id)
+    .order("updated_at", { ascending: false });
+
+  if (reflectionsError) {
+    initialReflectionsErrorMessage = "Failed to load reflections.";
+  } else {
+    initialReflections = (reflectionsRows ?? []).map((row) =>
+      toInitialReflection(row as ReflectionRow),
+    );
   }
 
   return (
@@ -256,6 +294,12 @@ export default async function ExternalItemDetailPage({
         externalItemId={item.id}
         initialErrorMessage={initialNotesErrorMessage}
         initialNotes={initialNotes}
+      />
+
+      <ExternalItemReflectionsPanel
+        externalItemId={item.id}
+        initialErrorMessage={initialReflectionsErrorMessage}
+        initialReflections={initialReflections}
       />
     </article>
   );
