@@ -10,19 +10,30 @@ export const dynamic = "force-dynamic";
 
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
 type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
+type ExternalItemRow = Database["public"]["Tables"]["external_items"]["Row"];
 type NoteInsert = Database["public"]["Tables"]["notes"]["Insert"];
-type NoteItemType = Extract<Database["public"]["Tables"]["notes"]["Row"]["item_type"], "article">;
+type NoteItemType = Database["public"]["Tables"]["notes"]["Row"]["item_type"];
 type NoteRow = Database["public"]["Tables"]["notes"]["Row"];
-type PrivateArticleNoteResponse = Pick<
+type PrivateNoteResponse = Pick<
   Note,
-  "id" | "itemType" | "articleId" | "selectedText" | "content" | "visibility" | "createdAt" | "updatedAt"
+  | "id"
+  | "itemType"
+  | "articleId"
+  | "externalItemId"
+  | "selectedText"
+  | "content"
+  | "visibility"
+  | "createdAt"
+  | "updatedAt"
 >;
 
 const ARTICLE_ITEM_TYPE: NoteItemType = "article";
+const EXTERNAL_ITEM_TYPE: NoteItemType = "external_item";
 
 interface CreateNoteRequestBody {
   itemType?: unknown;
   articleId?: unknown;
+  externalItemId?: unknown;
   content?: unknown;
   selectedText?: unknown;
   id?: unknown;
@@ -33,7 +44,6 @@ interface CreateNoteRequestBody {
   created_at?: unknown;
   updatedAt?: unknown;
   updated_at?: unknown;
-  externalItemId?: unknown;
   external_item_id?: unknown;
   authorId?: unknown;
   author_id?: unknown;
@@ -93,11 +103,12 @@ function ensureObjectBody(body: unknown): body is CreateNoteRequestBody {
   return !!body && typeof body === "object" && !Array.isArray(body);
 }
 
-function toNoteResponse(row: NoteRow): PrivateArticleNoteResponse {
+function toNoteResponse(row: NoteRow): PrivateNoteResponse {
   return {
     id: row.id,
     itemType: row.item_type,
     articleId: row.article_id,
+    externalItemId: row.external_item_id,
     selectedText: row.selected_text,
     content: row.content,
     visibility: row.visibility,
@@ -107,14 +118,18 @@ function toNoteResponse(row: NoteRow): PrivateArticleNoteResponse {
 }
 
 function normalizeItemType(value: unknown) {
-  if (value !== ARTICLE_ITEM_TYPE) {
-    return { error: 'itemType must be "article".' };
+  if (value !== ARTICLE_ITEM_TYPE && value !== EXTERNAL_ITEM_TYPE) {
+    return { error: 'itemType must be either "article" or "external_item".' };
   }
 
-  return { value: ARTICLE_ITEM_TYPE };
+  return { value: value as NoteItemType };
 }
 
 function normalizeArticleId(value: unknown) {
+  if (value === undefined || value === null) {
+    return { value: null };
+  }
+
   if (typeof value !== "string") {
     return { error: "articleId must be a string." };
   }
@@ -122,7 +137,25 @@ function normalizeArticleId(value: unknown) {
   const normalized = value.trim();
 
   if (!normalized) {
-    return { error: "articleId is required." };
+    return { error: "articleId cannot be empty." };
+  }
+
+  return { value: normalized };
+}
+
+function normalizeExternalItemId(value: unknown) {
+  if (value === undefined || value === null) {
+    return { value: null };
+  }
+
+  if (typeof value !== "string") {
+    return { error: "externalItemId must be a string." };
+  }
+
+  const normalized = value.trim();
+
+  if (!normalized) {
+    return { error: "externalItemId cannot be empty." };
   }
 
   return { value: normalized };
@@ -221,6 +254,38 @@ async function getAccessibleArticle(
   return { article: articleRow, errorResponse: null };
 }
 
+async function getOwnedExternalItem(
+  externalItemId: string,
+  userId: string,
+  supabase: Awaited<ReturnType<typeof createClient>>,
+) {
+  const { data, error } = await supabase
+    .from("external_items")
+    .select("id")
+    .eq("id", externalItemId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    return {
+      externalItem: null,
+      errorResponse: internalError("Failed to load external item."),
+    };
+  }
+
+  if (!data) {
+    return {
+      externalItem: null,
+      errorResponse: notFound("External item not found."),
+    };
+  }
+
+  return {
+    externalItem: data as Pick<ExternalItemRow, "id">,
+    errorResponse: null,
+  };
+}
+
 export async function GET(request: Request) {
   const { supabase, user, errorResponse } = await getAuthenticatedUser();
 
@@ -239,10 +304,66 @@ export async function GET(request: Request) {
     return validationError(articleIdResult.error);
   }
 
-  const articleAccess = await getAccessibleArticle(articleIdResult.value, user.id, supabase);
+  const externalItemIdResult = normalizeExternalItemId(url.searchParams.get("externalItemId"));
+  if (
+    "error" in externalItemIdResult &&
+    typeof externalItemIdResult.error === "string"
+  ) {
+    return validationError(externalItemIdResult.error);
+  }
 
-  if (articleAccess.errorResponse) {
-    return articleAccess.errorResponse;
+  const queryKeys = new Set(url.searchParams.keys());
+
+  if (itemTypeResult.value === ARTICLE_ITEM_TYPE) {
+    if (queryKeys.has("externalItemId")) {
+      return validationError('itemType "article" does not allow externalItemId.');
+    }
+
+    if (!articleIdResult.value) {
+      return validationError("articleId is required.");
+    }
+
+    const articleAccess = await getAccessibleArticle(articleIdResult.value, user.id, supabase);
+
+    if (articleAccess.errorResponse) {
+      return articleAccess.errorResponse;
+    }
+
+    const { data, error } = await supabase
+      .from("notes")
+      .select(
+        "id, user_id, item_type, article_id, external_item_id, selected_text, content, visibility, created_at, updated_at",
+      )
+      .eq("user_id", user.id)
+      .eq("item_type", itemTypeResult.value)
+      .eq("article_id", articleIdResult.value)
+      .order("updated_at", { ascending: false });
+
+    if (error) {
+      return internalError("Failed to load notes.");
+    }
+
+    return NextResponse.json<ApiResponse<PrivateNoteResponse[]>>({
+      data: (data ?? []).map((row) => toNoteResponse(row as NoteRow)),
+    });
+  }
+
+  if (queryKeys.has("articleId")) {
+    return validationError('itemType "external_item" does not allow articleId.');
+  }
+
+  if (!externalItemIdResult.value) {
+    return validationError("externalItemId is required.");
+  }
+
+  const externalItemAccess = await getOwnedExternalItem(
+    externalItemIdResult.value,
+    user.id,
+    supabase,
+  );
+
+  if (externalItemAccess.errorResponse) {
+    return externalItemAccess.errorResponse;
   }
 
   const { data, error } = await supabase
@@ -252,14 +373,14 @@ export async function GET(request: Request) {
     )
     .eq("user_id", user.id)
     .eq("item_type", itemTypeResult.value)
-    .eq("article_id", articleIdResult.value)
+    .eq("external_item_id", externalItemIdResult.value)
     .order("updated_at", { ascending: false });
 
   if (error) {
     return internalError("Failed to load notes.");
   }
 
-  return NextResponse.json<ApiResponse<PrivateArticleNoteResponse[]>>({
+  return NextResponse.json<ApiResponse<PrivateNoteResponse[]>>({
     data: (data ?? []).map((row) => toNoteResponse(row as NoteRow)),
   });
 }
@@ -286,7 +407,6 @@ export async function POST(request: Request) {
     rawBody.created_at !== undefined ||
     rawBody.updatedAt !== undefined ||
     rawBody.updated_at !== undefined ||
-    rawBody.externalItemId !== undefined ||
     rawBody.external_item_id !== undefined ||
     rawBody.authorId !== undefined ||
     rawBody.author_id !== undefined ||
@@ -294,12 +414,18 @@ export async function POST(request: Request) {
     rawBody.user !== undefined
   ) {
     return validationError(
-      "id, userId, user_id, visibility, createdAt, created_at, updatedAt, updated_at, externalItemId, external_item_id, authorId, author_id, article, and user are not allowed.",
+      "id, userId, user_id, visibility, createdAt, created_at, updatedAt, updated_at, external_item_id, authorId, author_id, article, and user are not allowed.",
     );
   }
 
   const keys = Object.keys(rawBody);
-  const allowedKeys = new Set(["itemType", "articleId", "content", "selectedText"]);
+  const allowedKeys = new Set([
+    "itemType",
+    "articleId",
+    "externalItemId",
+    "content",
+    "selectedText",
+  ]);
   const unknownKey = keys.find((key) => !allowedKeys.has(key));
 
   if (unknownKey) {
@@ -316,6 +442,14 @@ export async function POST(request: Request) {
     return validationError(articleIdResult.error);
   }
 
+  const externalItemIdResult = normalizeExternalItemId(rawBody.externalItemId);
+  if (
+    "error" in externalItemIdResult &&
+    typeof externalItemIdResult.error === "string"
+  ) {
+    return validationError(externalItemIdResult.error);
+  }
+
   const contentResult = normalizeContent(rawBody.content);
   if ("error" in contentResult && typeof contentResult.error === "string") {
     return validationError(contentResult.error);
@@ -326,17 +460,79 @@ export async function POST(request: Request) {
     return validationError(selectedTextResult.error);
   }
 
-  const articleAccess = await getAccessibleArticle(articleIdResult.value, user.id, supabase);
+  if (itemTypeResult.value === ARTICLE_ITEM_TYPE) {
+    if (!articleIdResult.value) {
+      return validationError("articleId is required.");
+    }
 
-  if (articleAccess.errorResponse) {
-    return articleAccess.errorResponse;
+    if (externalItemIdResult.value) {
+      return validationError(
+        'itemType "article" requires articleId and does not allow externalItemId.',
+      );
+    }
+
+    const articleAccess = await getAccessibleArticle(articleIdResult.value, user.id, supabase);
+
+    if (articleAccess.errorResponse) {
+      return articleAccess.errorResponse;
+    }
+
+    const payload: NoteInsert = {
+      user_id: user.id,
+      item_type: itemTypeResult.value,
+      article_id: articleIdResult.value,
+      external_item_id: null,
+      selected_text: selectedTextResult.value,
+      content: contentResult.value,
+      visibility: "private",
+    };
+
+    const { data, error } = await supabase
+      .from("notes")
+      .insert(payload)
+      .select(
+        "id, user_id, item_type, article_id, external_item_id, selected_text, content, visibility, created_at, updated_at",
+      )
+      .single();
+
+    if (error) {
+      return internalError("Failed to create note.");
+    }
+
+    return NextResponse.json<ApiResponse<PrivateNoteResponse>>(
+      {
+        data: toNoteResponse(data as NoteRow),
+        message: "Note created.",
+      },
+      { status: 201 },
+    );
+  }
+
+  if (!externalItemIdResult.value) {
+    return validationError("externalItemId is required.");
+  }
+
+  if (articleIdResult.value) {
+    return validationError(
+      'itemType "external_item" requires externalItemId and does not allow articleId.',
+    );
+  }
+
+  const externalItemAccess = await getOwnedExternalItem(
+    externalItemIdResult.value,
+    user.id,
+    supabase,
+  );
+
+  if (externalItemAccess.errorResponse) {
+    return externalItemAccess.errorResponse;
   }
 
   const payload: NoteInsert = {
     user_id: user.id,
     item_type: itemTypeResult.value,
-    article_id: articleIdResult.value,
-    external_item_id: null,
+    article_id: null,
+    external_item_id: externalItemIdResult.value,
     selected_text: selectedTextResult.value,
     content: contentResult.value,
     visibility: "private",
@@ -354,7 +550,7 @@ export async function POST(request: Request) {
     return internalError("Failed to create note.");
   }
 
-  return NextResponse.json<ApiResponse<PrivateArticleNoteResponse>>(
+  return NextResponse.json<ApiResponse<PrivateNoteResponse>>(
     {
       data: toNoteResponse(data as NoteRow),
       message: "Note created.",

@@ -4,6 +4,10 @@ import { notFound } from "next/navigation";
 import type { Database } from "@/types/database";
 import type { ContentType } from "@/types/domain";
 
+import {
+  ExternalItemNotesPanel,
+  type ExternalItemNotesPanelInitialState,
+} from "@/components/external/external-item-notes-panel";
 import { ROUTES } from "@/lib/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,6 +24,7 @@ type ExternalItemDetailRow = Pick<
   | "created_at"
   | "updated_at"
 >;
+type NoteRow = Database["public"]["Tables"]["notes"]["Row"];
 
 function formatDate(value: string) {
   try {
@@ -71,6 +76,20 @@ async function getExternalItem(id: string, userId: string) {
   }
 
   return { data: data as ExternalItemDetailRow };
+}
+
+function toInitialNote(row: NoteRow): ExternalItemNotesPanelInitialState[number] {
+  return {
+    id: row.id,
+    itemType: "external_item",
+    articleId: null,
+    externalItemId: row.external_item_id ?? "",
+    selectedText: row.selected_text,
+    content: row.content,
+    visibility: row.visibility,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
 }
 
 function Field({
@@ -152,6 +171,24 @@ export default async function ExternalItemDetailPage({
   }
 
   const item = result.data;
+  let initialNotes: ExternalItemNotesPanelInitialState = [];
+  let initialNotesErrorMessage: string | null = null;
+
+  const { data: notesRows, error: notesError } = await supabase
+    .from("notes")
+    .select(
+      "id, user_id, item_type, article_id, external_item_id, selected_text, content, visibility, created_at, updated_at",
+    )
+    .eq("user_id", user.id)
+    .eq("item_type", "external_item")
+    .eq("external_item_id", item.id)
+    .order("updated_at", { ascending: false });
+
+  if (notesError) {
+    initialNotesErrorMessage = "Failed to load notes.";
+  } else {
+    initialNotes = (notesRows ?? []).map((row) => toInitialNote(row as NoteRow));
+  }
 
   return (
     <article className="space-y-8">
@@ -214,6 +251,12 @@ export default async function ExternalItemDetailPage({
         <Field label="Created at" value={formatDate(item.created_at)} />
         <Field label="Updated at" value={formatDate(item.updated_at)} />
       </section>
+
+      <ExternalItemNotesPanel
+        externalItemId={item.id}
+        initialErrorMessage={initialNotesErrorMessage}
+        initialNotes={initialNotes}
+      />
     </article>
   );
 }
