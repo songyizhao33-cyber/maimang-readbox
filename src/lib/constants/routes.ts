@@ -6,6 +6,7 @@ export const ROUTES = {
 
   INBOX: "/inbox",
   LATER: "/later",
+  READING_TRACES: "/reading-traces",
   EXTERNAL_ITEM_DETAIL: (id: string) => `/external-items/${id}`,
   COLLECTIONS: "/collections",
   COLLECTION_DETAIL: (id: string) => `/collections/${id}`,
