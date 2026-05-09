@@ -8,6 +8,10 @@ import { createClient } from "@/lib/supabase/server";
 
 type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+type ProfileResponseRow = Pick<
+  ProfileRow,
+  "id" | "display_name" | "avatar_url" | "bio" | "role" | "created_at" | "updated_at"
+>;
 
 interface UpdateProfileRequestBody {
   display_name?: unknown;
@@ -17,13 +21,12 @@ interface UpdateProfileRequestBody {
 
 type ProfileResponseData = Pick<
   UserProfile,
-  "id" | "email" | "displayName" | "avatarUrl" | "bio" | "role" | "createdAt" | "updatedAt"
+  "id" | "displayName" | "avatarUrl" | "bio" | "role" | "createdAt" | "updatedAt"
 >;
 
-function toUserProfile(row: ProfileRow): ProfileResponseData {
+function toUserProfile(row: ProfileResponseRow): ProfileResponseData {
   return {
     id: row.id,
-    email: row.email,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
     bio: row.bio,
@@ -94,7 +97,7 @@ async function getCurrentProfile() {
 
   const { data: profileRow, error: profileError } = await supabase
     .from("profiles")
-    .select("id, email, display_name, avatar_url, bio, role, created_at, updated_at")
+    .select("id, display_name, avatar_url, bio, role, created_at, updated_at")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -217,6 +220,13 @@ export async function PATCH(request: Request) {
     return validationError("请求体必须是 JSON 对象。");
   }
 
+  const allowedKeys = new Set(["display_name", "bio", "avatar_url"]);
+  const unknownKey = Object.keys(body).find((key) => !allowedKeys.has(key));
+
+  if (unknownKey) {
+    return validationError(`Field "${unknownKey}" is not allowed.`);
+  }
+
   const displayNameResult = normalizeDisplayName(body.display_name);
   if ("error" in displayNameResult && typeof displayNameResult.error === "string") {
     return validationError(displayNameResult.error);
@@ -256,7 +266,7 @@ export async function PATCH(request: Request) {
     .from("profiles")
     .update(updates)
     .eq("id", user.id)
-    .select("id, email, display_name, avatar_url, bio, role, created_at, updated_at")
+    .select("id, display_name, avatar_url, bio, role, created_at, updated_at")
     .single();
 
   if (updateError) {

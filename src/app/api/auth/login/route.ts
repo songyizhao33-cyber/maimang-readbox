@@ -14,22 +14,24 @@ interface LoginRequestBody {
 interface LoginResponseData {
   user: {
     id: string;
-    email: string;
     displayName: string;
     role: UserProfile["role"] | null;
   };
   profile: Pick<
     UserProfile,
-    "id" | "email" | "displayName" | "avatarUrl" | "bio" | "role" | "createdAt" | "updatedAt"
+    "id" | "displayName" | "avatarUrl" | "bio" | "role" | "createdAt" | "updatedAt"
   > | null;
 }
 
 type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+type LoginProfileRow = Pick<
+  ProfileRow,
+  "id" | "display_name" | "avatar_url" | "bio" | "role" | "created_at" | "updated_at"
+>;
 
-function toUserProfile(row: ProfileRow): LoginResponseData["profile"] {
+function toUserProfile(row: LoginProfileRow): LoginResponseData["profile"] {
   return {
     id: row.id,
-    email: row.email,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
     bio: row.bio,
@@ -84,7 +86,7 @@ export async function POST(request: Request) {
 
   const { data: profileRow } = await supabase
     .from("profiles")
-    .select("id, email, display_name, avatar_url, bio, role, created_at, updated_at")
+    .select("id, display_name, avatar_url, bio, role, created_at, updated_at")
     .eq("id", data.user.id)
     .maybeSingle();
 
@@ -94,7 +96,6 @@ export async function POST(request: Request) {
     data: {
       user: {
         id: data.user.id,
-        email: data.user.email,
         displayName: profile?.displayName ?? data.user.email.split("@")[0] ?? "用户",
         role: profile?.role ?? null,
       },

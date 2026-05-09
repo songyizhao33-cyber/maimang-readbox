@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 
 import type { ApiResponse } from "@/types/api";
 import type { Database } from "@/types/database";
-import type { Collection } from "@/types/domain";
-
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +18,13 @@ interface CreateCollectionRequestBody {
   updated_at?: unknown;
 }
 
-type CollectionResponseData = Collection;
+interface CollectionResponseData {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 function authRequired() {
   return NextResponse.json<ApiResponse<never>>(
@@ -77,7 +81,6 @@ function ensureObjectBody(body: unknown): body is CreateCollectionRequestBody {
 function toCollectionResponse(row: CollectionRow): CollectionResponseData {
   return {
     id: row.id,
-    userId: row.user_id,
     name: row.name,
     description: row.description,
     createdAt: row.created_at,

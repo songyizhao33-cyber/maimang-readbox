@@ -9,20 +9,22 @@ import { createClient } from "@/lib/supabase/server";
 interface CurrentUserResponseData {
   user: {
     id: string;
-    email: string;
   };
   profile: Pick<
     UserProfile,
-    "id" | "email" | "displayName" | "avatarUrl" | "bio" | "role" | "createdAt" | "updatedAt"
+    "id" | "displayName" | "avatarUrl" | "bio" | "role" | "createdAt" | "updatedAt"
   > | null;
 }
 
 type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+type CurrentUserProfileRow = Pick<
+  ProfileRow,
+  "id" | "display_name" | "avatar_url" | "bio" | "role" | "created_at" | "updated_at"
+>;
 
-function toUserProfile(row: ProfileRow): CurrentUserResponseData["profile"] {
+function toUserProfile(row: CurrentUserProfileRow): CurrentUserResponseData["profile"] {
   return {
     id: row.id,
-    email: row.email,
     displayName: row.display_name,
     avatarUrl: row.avatar_url,
     bio: row.bio,
@@ -53,7 +55,7 @@ export async function GET() {
 
   const { data: profileRow, error: profileError } = await supabase
     .from("profiles")
-    .select("id, email, display_name, avatar_url, bio, role, created_at, updated_at")
+    .select("id, display_name, avatar_url, bio, role, created_at, updated_at")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -73,7 +75,6 @@ export async function GET() {
     data: {
       user: {
         id: user.id,
-        email: user.email,
       },
       profile: profileRow ? toUserProfile(profileRow) : null,
     },

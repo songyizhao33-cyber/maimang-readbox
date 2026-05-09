@@ -31,7 +31,6 @@ type PublicAuthorProfileData = Pick<
 type OwnerAuthorProfileData = Pick<
   AuthorProfile,
   | "id"
-  | "userId"
   | "penName"
   | "bio"
   | "avatarUrl"
@@ -65,7 +64,6 @@ function toPublicAuthorProfile(
 function toOwnerAuthorProfile(row: AuthorProfileRow): OwnerAuthorProfileData {
   return {
     id: row.id,
-    userId: row.user_id,
     penName: row.pen_name,
     bio: row.bio,
     avatarUrl: row.avatar_url,

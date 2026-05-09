@@ -12,7 +12,6 @@ interface RegisterRequestBody {
 interface RegisterResponseData {
   user: {
     id: string;
-    email: string;
   };
 }
 
@@ -102,7 +101,6 @@ export async function POST(request: Request) {
       data: {
         user: {
           id: data.user.id,
-          email: data.user.email,
         },
       },
       message: "注册成功。若项目开启邮箱确认，请先完成验证后再登录。",
