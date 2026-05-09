@@ -3,10 +3,14 @@ import { notFound } from "next/navigation";
 import type { Database } from "@/types/database";
 import type { AuthorProfile } from "@/types/domain";
 
+import { AuthorArticlesList } from "@/components/author/author-articles-list";
 import { AuthorSubscribeButton } from "@/components/author/author-subscribe-button";
 import { createClient } from "@/lib/supabase/server";
 
-type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
+type AuthorProfileRow = Pick<
+  Database["public"]["Tables"]["author_profiles"]["Row"],
+  "id" | "pen_name" | "bio" | "avatar_url" | "homepage_url" | "created_at"
+>;
 
 type PublicAuthorProfileData = Pick<
   AuthorProfile,
@@ -14,10 +18,7 @@ type PublicAuthorProfileData = Pick<
 >;
 
 function toPublicAuthorProfile(
-  row: Pick<
-    AuthorProfileRow,
-    "id" | "pen_name" | "bio" | "avatar_url" | "homepage_url" | "created_at"
-  >,
+  row: AuthorProfileRow,
 ): PublicAuthorProfileData {
   return {
     id: row.id,
@@ -64,6 +65,7 @@ export default async function AuthorDetailPage({
   } = await supabase.auth.getUser();
 
   let isSubscribed = false;
+  let isOwnAuthorProfile = false;
 
   if (user?.id) {
     const { data: existingSubscription } = await supabase
@@ -74,9 +76,34 @@ export default async function AuthorDetailPage({
       .maybeSingle();
 
     isSubscribed = !!existingSubscription;
+
+    const { data: ownAuthorProfile } = await supabase
+      .from("author_profiles")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    isOwnAuthorProfile = ownAuthorProfile?.id === authorRow.id;
   }
 
+  const { data: articleRows, error: articleError } = await supabase
+    .from("articles")
+    .select("id, title, subtitle, excerpt, published_at")
+    .eq("author_id", authorRow.id)
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+
   const author = toPublicAuthorProfile(authorRow);
+  const publishedArticles =
+    !articleError && articleRows
+      ? articleRows.map((row) => ({
+          id: row.id,
+          title: row.title,
+          subtitle: row.subtitle,
+          excerpt: row.excerpt,
+          publishedAt: row.published_at,
+        }))
+      : [];
 
   return (
     <section className="space-y-8">
@@ -128,6 +155,7 @@ export default async function AuthorDetailPage({
                 authorId={author.id}
                 isAuthenticated={!!user?.id}
                 initialSubscribed={isSubscribed}
+                isOwnAuthorProfile={isOwnAuthorProfile}
               />
             </div>
           </div>
@@ -136,12 +164,22 @@ export default async function AuthorDetailPage({
 
       <div className="rounded-[2rem] border border-stone-200 bg-stone-50 p-8">
         <div className="space-y-3">
-          <h2 className="text-xl font-semibold tracking-tight text-stone-950">Works</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-stone-950">
+            Published articles
+          </h2>
           <p className="max-w-2xl text-sm leading-7 text-stone-600">
-            Published works will keep appearing here through the article reading flow. T20 and T21
-            only cover the minimal subscribe or unsubscribe relationship and do not implement
-            audience counts, ranking surfaces, or inbox delivery.
+            Only articles with published status appear here. Unpublished work remains inside the
+            author workspace.
           </p>
+        </div>
+        <div className="mt-6">
+          {articleError ? (
+            <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+              Failed to load published articles. Please refresh and try again.
+            </div>
+          ) : (
+            <AuthorArticlesList articles={publishedArticles} />
+          )}
         </div>
       </div>
     </section>

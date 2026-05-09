@@ -4,18 +4,21 @@ import type { AuthorProfile } from "@/types/domain";
 import { AuthorCard } from "@/components/author/author-card";
 import { createClient } from "@/lib/supabase/server";
 
-type AuthorProfileRow = Database["public"]["Tables"]["author_profiles"]["Row"];
+type AuthorProfileRow = Pick<
+  Database["public"]["Tables"]["author_profiles"]["Row"],
+  "id" | "pen_name" | "bio" | "avatar_url" | "homepage_url" | "created_at"
+>;
 
 type PublicAuthorProfileData = Pick<
   AuthorProfile,
   "id" | "penName" | "bio" | "avatarUrl" | "homepageUrl" | "createdAt"
->;
+> & {
+  publishedArticleCount: number;
+};
 
 function toPublicAuthorProfile(
-  row: Pick<
-    AuthorProfileRow,
-    "id" | "pen_name" | "bio" | "avatar_url" | "homepage_url" | "created_at"
-  >,
+  row: AuthorProfileRow,
+  publishedArticleCount: number,
 ): PublicAuthorProfileData {
   return {
     id: row.id,
@@ -24,6 +27,7 @@ function toPublicAuthorProfile(
     avatarUrl: row.avatar_url,
     homepageUrl: row.homepage_url,
     createdAt: row.created_at,
+    publishedArticleCount,
   };
 }
 
@@ -35,7 +39,53 @@ export default async function AuthorsPage() {
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  const authors = !error && authorRows ? authorRows.map((row) => toPublicAuthorProfile(row)) : [];
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const authorIds = (authorRows ?? []).map((row) => row.id);
+  const { data: publishedArticleRows } =
+    authorIds.length === 0
+      ? { data: [] as Array<{ id: string; author_id: string }> }
+      : await supabase
+          .from("articles")
+          .select("id, author_id")
+          .in("author_id", authorIds)
+          .eq("status", "published");
+
+  const articleCountByAuthor = new Map<string, number>();
+  for (const article of publishedArticleRows ?? []) {
+    articleCountByAuthor.set(
+      article.author_id,
+      (articleCountByAuthor.get(article.author_id) ?? 0) + 1,
+    );
+  }
+
+  const { data: subscriptionRows } =
+    user?.id && authorIds.length > 0
+      ? await supabase
+          .from("subscriptions")
+          .select("author_id")
+          .eq("reader_id", user.id)
+          .in("author_id", authorIds)
+      : { data: [] as Array<{ author_id: string }> };
+
+  const subscribedAuthorIds = new Set((subscriptionRows ?? []).map((row) => row.author_id));
+
+  const { data: ownAuthorProfile } = user?.id
+    ? await supabase
+        .from("author_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle()
+    : { data: null as { id: string } | null };
+
+  const authors =
+    !error && authorRows
+      ? authorRows.map((row) =>
+          toPublicAuthorProfile(row, articleCountByAuthor.get(row.id) ?? 0),
+        )
+      : [];
 
   return (
     <section className="space-y-8">
@@ -45,12 +95,12 @@ export default async function AuthorsPage() {
             Authors
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Public author profiles
+            Authors to follow deliberately
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            This is a quiet directory of active authors. It only shows each author&apos;s public
-            profile fields and does not include recommendations, rankings, follower counts, or
-            article feeds.
+            Browse active public author profiles and subscribe when you want future published
+            articles to enter your inbox. The list stays chronological and does not rank, recommend,
+            or expose follower data.
           </p>
         </div>
       </div>
@@ -66,7 +116,13 @@ export default async function AuthorsPage() {
       ) : (
         <div className="grid gap-6">
           {authors.map((author) => (
-            <AuthorCard key={author.id} author={author} />
+            <AuthorCard
+              key={author.id}
+              author={author}
+              isAuthenticated={!!user?.id}
+              isOwnAuthorProfile={ownAuthorProfile?.id === author.id}
+              isSubscribed={subscribedAuthorIds.has(author.id)}
+            />
           ))}
         </div>
       )}

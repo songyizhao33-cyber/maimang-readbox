@@ -14,12 +14,14 @@ interface AuthorSubscribeButtonProps {
   authorId: string;
   isAuthenticated: boolean;
   initialSubscribed: boolean;
+  isOwnAuthorProfile?: boolean;
 }
 
 export function AuthorSubscribeButton({
   authorId,
   isAuthenticated,
   initialSubscribed,
+  isOwnAuthorProfile = false,
 }: AuthorSubscribeButtonProps) {
   const [isSubscribed, setIsSubscribed] = useState(initialSubscribed);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,6 +81,20 @@ export function AuthorSubscribeButton({
     }
   }
 
+  if (isOwnAuthorProfile) {
+    return (
+      <div className="space-y-3">
+        <Link
+          href={ROUTES.AUTHOR_DASHBOARD}
+          className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm text-stone-50 transition hover:bg-stone-800"
+        >
+          Manage author profile
+        </Link>
+        <p className="text-sm text-stone-500">This is your author profile.</p>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="space-y-3">
@@ -127,8 +143,7 @@ export function AuthorSubscribeButton({
       {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
       {isSubscribed ? (
         <p className="text-sm text-stone-500">
-          New published articles can be delivered in later tasks. No inbox items are created or
-          removed in T21.
+          New published articles from this author can enter your inbox.
         </p>
       ) : null}
     </div>

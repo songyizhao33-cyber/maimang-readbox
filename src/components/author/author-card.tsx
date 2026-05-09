@@ -2,15 +2,21 @@ import Link from "next/link";
 
 import type { AuthorProfile } from "@/types/domain";
 
+import { AuthorSubscribeButton } from "@/components/author/author-subscribe-button";
 import { ROUTES } from "@/lib/constants/routes";
 
 type PublicAuthorProfileData = Pick<
   AuthorProfile,
   "id" | "penName" | "bio" | "avatarUrl" | "homepageUrl" | "createdAt"
->;
+> & {
+  publishedArticleCount: number;
+};
 
 interface AuthorCardProps {
   author: PublicAuthorProfileData;
+  isAuthenticated: boolean;
+  isOwnAuthorProfile: boolean;
+  isSubscribed: boolean;
 }
 
 function formatCreatedAt(value: string) {
@@ -25,10 +31,15 @@ function formatCreatedAt(value: string) {
   }
 }
 
-export function AuthorCard({ author }: AuthorCardProps) {
+export function AuthorCard({
+  author,
+  isAuthenticated,
+  isOwnAuthorProfile,
+  isSubscribed,
+}: AuthorCardProps) {
   return (
     <article className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)]">
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
         <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-stone-200 bg-stone-100 text-sm font-medium text-stone-500">
           {author.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -53,7 +64,9 @@ export function AuthorCard({ author }: AuthorCardProps) {
               </Link>
             </h2>
             <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
-              Joined {formatCreatedAt(author.createdAt)}
+              {author.publishedArticleCount} published article
+              {author.publishedArticleCount === 1 ? "" : "s"} - Joined{" "}
+              {formatCreatedAt(author.createdAt)}
             </p>
           </div>
 
@@ -79,6 +92,15 @@ export function AuthorCard({ author }: AuthorCardProps) {
               </a>
             ) : null}
           </div>
+        </div>
+
+        <div className="sm:w-52 sm:shrink-0">
+          <AuthorSubscribeButton
+            authorId={author.id}
+            initialSubscribed={isSubscribed}
+            isAuthenticated={isAuthenticated}
+            isOwnAuthorProfile={isOwnAuthorProfile}
+          />
         </div>
       </div>
     </article>
