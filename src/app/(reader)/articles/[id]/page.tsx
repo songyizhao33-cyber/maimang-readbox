@@ -15,6 +15,7 @@ import {
   ArticlePublicReflectionsPanel,
   type PublicArticleReflectionView,
 } from "@/components/article/article-public-reflections-panel";
+import { ArticleReadingActions } from "@/components/article/article-reading-actions";
 import {
   ArticleReflectionsPanel,
   type ArticleReflectionsPanelInitialState,
@@ -198,7 +199,9 @@ export default async function ArticlePage({
   return (
     <article className="space-y-8">
       <header className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
-        <div className="space-y-4">
+        <div className="space-y-6">
+          <ArticleReadingActions authorId={author?.id ?? null} />
+
           <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-stone-400">
             <span>{isDraftPreview ? "Draft preview" : "Published article"}</span>
             <span>
@@ -220,7 +223,7 @@ export default async function ArticlePage({
             ) : null}
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm text-stone-700">
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm text-stone-700">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-stone-200 bg-white text-stone-400">
                 {author?.avatar_url ? (
@@ -249,18 +252,10 @@ export default async function ArticlePage({
               </div>
             </div>
 
-            <Link
-              href={ROUTES.INBOX}
-              className="inline-flex items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50"
-            >
-              Back to Inbox
-            </Link>
-            <Link
-              href={ROUTES.READING_TRACES}
-              className="inline-flex items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50"
-            >
-              Reading Traces
-            </Link>
+            <div className="max-w-md text-xs leading-6 text-stone-500">
+              Read first; keep your private notes below. Public traces are separated from your
+              private workspace.
+            </div>
           </div>
         </div>
       </header>
@@ -276,34 +271,70 @@ export default async function ArticlePage({
         </div>
       ) : null}
 
-      <section className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)] sm:p-10">
-        <div className="prose prose-stone max-w-none whitespace-pre-wrap text-sm leading-8 text-stone-700 sm:text-base">
-          {articleRow.content || "This article does not have body content yet."}
+      <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)] sm:p-10">
+        <div className="mx-auto max-w-3xl space-y-5">
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
+            Article body
+          </div>
+          <div className="prose prose-stone max-w-none whitespace-pre-wrap text-base leading-9 text-stone-800">
+            {articleRow.content || "This article does not have body content yet."}
+          </div>
         </div>
       </section>
 
       {articleRow.status === "published" ? (
-        <>
+        <section className="space-y-4">
+          <div className="rounded-[2rem] border border-stone-200 bg-stone-50 p-6">
+            <div className="space-y-2">
+              <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
+                Public reading traces
+              </div>
+              <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
+                Reader traces made public
+              </h2>
+              <p className="max-w-2xl text-sm leading-7 text-stone-600">
+                These notes and reflections are read-only here. Private notes and reflections stay
+                in each reader&apos;s own workspace unless they choose public visibility.
+              </p>
+            </div>
+          </div>
           <ArticlePublicNotesPanel notes={publicNotes} />
           <ArticlePublicReflectionsPanel reflections={publicReflections} />
-        </>
+        </section>
       ) : null}
 
-      <ArticleNotesPanel
-        articleId={articleRow.id}
-        canManageNotes={canManageNotes}
-        initialErrorMessage={initialNotesErrorMessage}
-        initialNotes={initialNotes}
-        isAuthenticated={isAuthenticated}
-      />
+      <section className="space-y-4">
+        <div className="rounded-[2rem] border border-stone-200 bg-stone-50 p-6">
+          <div className="space-y-2">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
+              My private workspace
+            </div>
+            <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
+              Notes and reflections
+            </h2>
+            <p className="max-w-2xl text-sm leading-7 text-stone-600">
+              Keep excerpts, short notes, and longer reflections after the reading. These controls
+              use the existing private notes and reflections flow.
+            </p>
+          </div>
+        </div>
 
-      <ArticleReflectionsPanel
-        articleId={articleRow.id}
-        canManageReflections={canManageReflections}
-        initialErrorMessage={initialReflectionsErrorMessage}
-        initialReflections={initialReflections}
-        isAuthenticated={isAuthenticated}
-      />
+        <ArticleNotesPanel
+          articleId={articleRow.id}
+          canManageNotes={canManageNotes}
+          initialErrorMessage={initialNotesErrorMessage}
+          initialNotes={initialNotes}
+          isAuthenticated={isAuthenticated}
+        />
+
+        <ArticleReflectionsPanel
+          articleId={articleRow.id}
+          canManageReflections={canManageReflections}
+          initialErrorMessage={initialReflectionsErrorMessage}
+          initialReflections={initialReflections}
+          isAuthenticated={isAuthenticated}
+        />
+      </section>
     </article>
   );
 }

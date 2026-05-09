@@ -8,6 +8,7 @@ import {
   ExternalItemNotesPanel,
   type ExternalItemNotesPanelInitialState,
 } from "@/components/external/external-item-notes-panel";
+import { ExternalItemReadingActions } from "@/components/external/external-item-reading-actions";
 import {
   ExternalItemReflectionsPanel,
   type ExternalItemReflectionsPanelInitialState,
@@ -231,7 +232,9 @@ export default async function ExternalItemDetailPage({
   return (
     <article className="space-y-8">
       <header className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
-        <div className="space-y-5">
+        <div className="space-y-6">
+          <ExternalItemReadingActions />
+
           <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-stone-400">
             <span>{formatContentType(item.content_type as ContentType)}</span>
             <span>Saved {formatDate(item.created_at)}</span>
@@ -239,23 +242,13 @@ export default async function ExternalItemDetailPage({
           </div>
 
           <div className="space-y-3">
-            <Link
-              href={ROUTES.LATER}
-              className="inline-flex items-center text-sm font-medium text-stone-500 transition-colors hover:text-stone-700"
-            >
-              Back to Later
-            </Link>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
               {item.title}
             </h1>
             <p className="max-w-3xl text-sm leading-7 text-stone-600">
-              This page only shows the metadata and short excerpt you saved yourself. It does not
-              fetch or reveal third-party full text.
+              This is a private reading surface for metadata, a source link, and your own notes.
+              It does not fetch, parse, or reveal third-party full text.
             </p>
-          </div>
-
-          <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm leading-7 text-stone-600">
-            {item.legal_note}
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -269,44 +262,78 @@ export default async function ExternalItemDetailPage({
                 Open source
               </Link>
             ) : null}
-            <Link
-              href={ROUTES.LATER}
-              className="inline-flex items-center rounded-full border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
-            >
-              Back to Later
-            </Link>
-            <Link
-              href={ROUTES.READING_TRACES}
-              className="inline-flex items-center rounded-full border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
-            >
-              Reading Traces
-            </Link>
           </div>
         </div>
       </header>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <Field label="Title" value={item.title} />
-        <Field label="Content type" value={formatContentType(item.content_type as ContentType)} />
-        <Field label="Source platform" value={item.source_platform} />
-        <Field label="Author name" value={item.source_author} />
-        <Field label="Source URL" value={item.url} />
-        <Field label="Saved excerpt" value={item.excerpt} />
-        <Field label="Created at" value={formatDate(item.created_at)} />
-        <Field label="Updated at" value={formatDate(item.updated_at)} />
+      <section className="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.2)] sm:p-8">
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
+              Source metadata
+            </div>
+            <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
+              What you saved
+            </h2>
+            <p className="max-w-2xl text-sm leading-7 text-stone-600">
+              Keep the source identity clear, then return to the original site for the full text.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field label="Title" value={item.title} />
+            <Field label="Content type" value={formatContentType(item.content_type as ContentType)} />
+            <Field label="Source platform" value={item.source_platform} />
+            <Field label="Author name" value={item.source_author} />
+            <Field label="Source URL" value={item.url} />
+            <Field label="Saved excerpt" value={item.excerpt} />
+            <Field label="Created at" value={formatDate(item.created_at)} />
+            <Field label="Updated at" value={formatDate(item.updated_at)} />
+          </div>
+        </div>
       </section>
 
-      <ExternalItemNotesPanel
-        externalItemId={item.id}
-        initialErrorMessage={initialNotesErrorMessage}
-        initialNotes={initialNotes}
-      />
+      <section className="rounded-[2rem] border border-amber-200 bg-amber-50 p-6 text-sm leading-7 text-amber-900 shadow-[0_18px_50px_-32px_rgba(120,53,15,0.25)] sm:p-8">
+        <div className="space-y-3">
+          <div className="text-xs font-medium uppercase tracking-[0.18em] text-amber-700">
+            Compliance note
+          </div>
+          <p>{item.legal_note}</p>
+          <p className="text-amber-800">
+            External items are manually saved for private reading. Maimang Readbox does not expose
+            third-party full text, run automatic crawling, or create public mirrors of the source.
+          </p>
+        </div>
+      </section>
 
-      <ExternalItemReflectionsPanel
-        externalItemId={item.id}
-        initialErrorMessage={initialReflectionsErrorMessage}
-        initialReflections={initialReflections}
-      />
+      <section className="space-y-4">
+        <div className="rounded-[2rem] border border-stone-200 bg-stone-50 p-6">
+          <div className="space-y-2">
+            <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
+              My private workspace
+            </div>
+            <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
+              Notes and reflections
+            </h2>
+            <p className="max-w-2xl text-sm leading-7 text-stone-600">
+              Keep your own observations beside the saved source metadata. These traces stay
+              private to your account.
+            </p>
+          </div>
+        </div>
+
+        <ExternalItemNotesPanel
+          externalItemId={item.id}
+          initialErrorMessage={initialNotesErrorMessage}
+          initialNotes={initialNotes}
+        />
+
+        <ExternalItemReflectionsPanel
+          externalItemId={item.id}
+          initialErrorMessage={initialReflectionsErrorMessage}
+          initialReflections={initialReflections}
+        />
+      </section>
     </article>
   );
 }
