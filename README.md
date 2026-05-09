@@ -1,123 +1,153 @@
-# 麦芒订阅 / Maimang Readbox
+# Maimang Readbox
 
-> 反信息流的深度阅读收件箱
+Project name: 麦芒订阅 / Maimang Readbox
 
-## 项目定位
+Maimang Readbox is a quiet reading product for subscriptions, saved external reading, and private reflection.
 
-麦芒订阅是一个"小而美"的深度阅读平台,核心是"邮箱式阅读列表":
+It is intentionally anti-feed:
 
-- **读者功能**: 订阅作者 → 作品投递到收件箱 + 保存外部内容到待读列表
-- **作者功能**: 轻量写作 → 发布 → 自动投递给订阅者
-- **产品精神**: 反信息流、反流量逻辑、深度阅读、长期资料整理
+- No recommendation feed.
+- No trending list.
+- No complex social graph.
+- No comments or likes.
+- No automatic crawling.
+- No OCR or AI summary in the MVP.
 
-## 技术栈
+## Product Shape
 
-- **前端**: Next.js 16+ (App Router) + React + TypeScript + Tailwind CSS
-- **后端**: Next.js Route Handlers + Server Actions
-- **数据库**: Supabase PostgreSQL + Row Level Security
-- **认证**: Supabase Auth
-- **包管理**: pnpm
+The MVP is built around a small set of reading loops:
 
-## 项目结构
+- Subscribe to authors, then receive their published articles in an Inbox.
+- Save external reading manually into Later.
+- Organize articles and saved external items into private Collections.
+- Leave private Notes and Reflections while reading.
+- Make article notes or reflections public only through the safe public article traces DTO.
+- Review all personal Notes and Reflections in Reading Traces.
+- Use Author Workspace to create drafts, publish articles, and manage your public author profile.
 
-```
-maimang-readbox/
-  docs/              # 项目文档
-  src/
-    app/             # Next.js App Router 页面和 API
-    components/      # React 组件
-    features/        # 功能模块 (按业务领域划分)
-    lib/             # 工具函数和客户端
-    types/           # TypeScript 类型定义
-  supabase/
-    migrations/      # 数据库迁移文件
-  tests/             # 测试文件
-```
+External items are manual records. The app stores user-entered metadata, links, short excerpts, and notes. It does not automatically import source pages, bypass paywalls, or publicly expose third-party full text.
 
-## 本地运行
+## Tech Stack
 
-### 前置要求
+- Next.js App Router and Route Handlers
+- React and TypeScript
+- Tailwind CSS
+- Supabase Auth
+- Supabase Postgres with Row Level Security
+- pnpm
+- `scripts/smoke-mvp.mjs` for end-to-end MVP smoke coverage
 
-- Node.js 24+
-- pnpm 10+
+## Local Setup
 
-### 安装依赖
+Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-### 启动开发服务器
+Create `.env.local` from `.env.example` and fill in your local Supabase project values:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+Do not commit `.env.local`.
+
+Run local development:
 
 ```bash
 pnpm dev
 ```
 
-访问 http://localhost:3000
-
-### 其他命令
+Build and start the production server locally:
 
 ```bash
-pnpm lint      # 代码检查
-pnpm build     # 构建生产版本
+corepack pnpm build
+corepack pnpm start
 ```
 
-## 当前完成状态
+If port `3000` is occupied, start Next directly on another port:
 
-✅ 项目框架已建立
-✅ 目录结构已创建
-✅ 页面占位已完成
-✅ API health check 已实现
-✅ 数据库 schema 初稿已完成
-✅ TypeScript 类型定义已完成
-✅ 项目文档已创建
+```powershell
+& "C:\Program Files\nodejs\node.exe" node_modules/next/dist/bin/next start -p 3001 -H 127.0.0.1
+```
 
-⏳ 业务逻辑尚未实现 (见后续任务)
+## Validation
 
-## 当前不包含的功能
+Run static checks:
 
-- ❌ 用户注册登录 (待实现)
-- ❌ 文章创建和发布 (待实现)
-- ❌ 订阅和收件箱 (待实现)
-- ❌ 外部内容保存 (待实现)
-- ❌ 笔记和专题 (待实现)
-- ❌ 支付和订阅付费 (MVP 不做)
-- ❌ 推荐算法和热榜 (MVP 不做)
-- ❌ 评论和私信 (MVP 不做)
+```bash
+pnpm lint
+corepack pnpm build
+```
 
-## 后续任务入口
+Run the MVP smoke harness after a server is available:
 
-查看 `docs/08_codex_task_board.md` 了解详细任务清单。
+```bash
+node scripts/smoke-mvp.mjs
+```
 
-查看 `TASKS.md` 了解当前进度和下一步任务。
+For a non-default server URL:
 
-## 如何使用 Claude Code
+```powershell
+$env:SMOKE_BASE_URL="http://127.0.0.1:3001"
+node scripts/smoke-mvp.mjs
+```
 
-本项目已配置 `CLAUDE.md`,包含 Karpathy 启发的编码原则。
+The smoke harness creates timestamped temporary users and test data. It does not use a service role key and does not print cookies, tokens, passwords, or `.env.local` contents.
 
-使用 Claude Code 时,它会自动遵循这些原则:
-1. Think Before Coding - 编码前思考
-2. Simplicity First - 简洁优先
-3. Surgical Changes - 精准修改
-4. Goal-Driven Execution - 目标驱动执行
+## MVP Features
 
-## 如何使用 Cursor
+- Auth and safe profile DTOs
+- Public author profiles
+- Author subscription and unsubscribe
+- Inbox fanout for newly published subscribed articles
+- Article draft and publish flow
+- Published article reading pages
+- Manual external item saving in Later
+- Private collections and collection items
+- Article notes and reflections
+- External item notes and reflections
+- Public article reading traces through safe DTOs
+- Private Reading Traces overview
+- Profile settings
+- Author Dashboard, Write, and My Articles
+- Reusable MVP smoke harness
 
-本项目已配置 `.cursor/rules/project-rules.mdc`,Cursor 会自动应用这些规则。
+## Security Principles
 
-## 如何阅读文档
+- Runtime code uses Supabase anon key plus RLS, not service role key.
+- RLS remains the primary database isolation boundary.
+- API DTOs must not expose `userId`, `user_id`, email, raw profile rows, or owner foreign keys.
+- Public article traces are exposed only through read-only safe DTOs.
+- Draft articles are hidden from non-owners.
+- External items are private to their owner and must not expose `original_content` or `extracted_content`.
+- Third-party full text is not publicly exposed.
 
-1. **项目宪章**: `docs/00_project_charter.md` - 了解项目定位和目标
-2. **架构总览**: `docs/02_architecture_overview.md` - 了解技术架构
-3. **模块地图**: `docs/03_module_map.md` - 了解模块划分
-4. **API 契约**: `docs/04_api_contract.md` - 了解接口设计
-5. **数据库设计**: `docs/05_database_schema.md` - 了解数据表结构
-6. **任务板**: `docs/08_codex_task_board.md` - 了解后续任务
+## Explicit MVP Non-Goals
 
-## 如何进行阶段检查
+- Search
+- Tags
+- Sharing pages
+- Public square
+- Recommendations
+- Trending lists
+- Comments
+- Likes
+- Direct messages
+- Export
+- OCR
+- AI summary
+- Automatic crawling or automatic page extraction
+- Paid subscriptions
+- Real email delivery workflows
 
-查看 `docs/09_progress_checkpoints.md` 了解各阶段检查标准。
+## Deployment Materials
 
-## License
+- `docs/10_mvp_acceptance_report.md`
+- `docs/11_deployment_readiness.md`
+- `docs/12_demo_script.md`
+- `docs/13_known_limitations.md`
 
-MIT
+Use `docs/11_deployment_readiness.md` as the deployment gate before any production release.

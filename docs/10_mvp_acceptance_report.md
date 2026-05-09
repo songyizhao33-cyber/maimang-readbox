@@ -121,3 +121,22 @@ Recommended focus for the next task:
 - Continue from the now-validated MVP baseline rather than widening acceptance scope again.
 - Keep the smoke harness as the regression gate for any future auth, profile, traces, or collection work.
 - If T51 touches new DTOs, apply the same blocked-field assertions before merging.
+
+## Post-Acceptance Product Polish
+
+After the T50/T50.5 acceptance baseline, the following MVP polish tasks were completed:
+
+- T51: reader navigation and information architecture were consolidated.
+- T52: author discovery and subscription entry were polished.
+- T53: article and external item reading surfaces were polished.
+- T54: Settings/Profile and Author Workspace were made clearer for reader and author states.
+- T55: MVP copy, empty states, button naming, and compliance wording were aligned.
+
+Latest verified baseline before deployment-readiness documentation:
+
+- `ed57380 feat: align mvp copy and empty states`
+- `pnpm lint` passed.
+- `corepack pnpm build` passed.
+- `node scripts/smoke-mvp.mjs` passed against `http://127.0.0.1:3001`.
+
+Recommended next step: use the smoke-validated MVP as the baseline for deployment readiness, demo preparation, and known-limitation documentation.
