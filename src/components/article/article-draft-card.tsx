@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { ApiResponse } from "@/types/api";
 import type { Article } from "@/types/domain";
 
+import { ArticleStatusBadge } from "@/components/author/article-status-badge";
 import { ROUTES } from "@/lib/constants/routes";
 
 type AuthorArticleListItemData = Pick<
@@ -83,7 +84,7 @@ export function ArticleDraftCard({ article }: ArticleDraftCardProps) {
       <div className="space-y-4">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-stone-400">
-            <span>{article.status}</span>
+            <ArticleStatusBadge status={article.status} />
             <span>Updated {formatDate(article.updatedAt)}</span>
             {article.publishedAt ? <span>Published {formatDate(article.publishedAt)}</span> : null}
           </div>
@@ -140,6 +141,11 @@ export function ArticleDraftCard({ article }: ArticleDraftCardProps) {
             slug: {article.slug}
           </span>
         </div>
+
+        <p className="text-xs leading-6 text-stone-500">
+          Drafts stay private in your author workspace. Published articles can be read publicly and
+          delivered to subscribed readers.
+        </p>
       </div>
     </article>
   );

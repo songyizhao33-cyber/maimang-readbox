@@ -221,7 +221,27 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
 
       <div aria-live="polite" className="min-h-6 space-y-1 text-sm">
         {errorMessage ? <p className="text-red-600">{errorMessage}</p> : null}
-        {successMessage ? <p className="text-emerald-700">{successMessage}</p> : null}
+        {successMessage ? (
+          <div className="space-y-3 rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-800">
+            <p>{successMessage}</p>
+            <div className="flex flex-wrap gap-2">
+              {article ? (
+                <Link
+                  href={`${ROUTES.AUTHOR_WRITE}?id=${article.id}`}
+                  className="inline-flex rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-medium text-emerald-800 transition-colors hover:border-emerald-300"
+                >
+                  Continue editing
+                </Link>
+              ) : null}
+              <Link
+                href={ROUTES.AUTHOR_ARTICLES}
+                className="inline-flex rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-medium text-emerald-800 transition-colors hover:border-emerald-300"
+              >
+                View My Articles
+              </Link>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -238,14 +258,14 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
           disabled
           className="inline-flex cursor-not-allowed items-center rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm text-stone-400"
         >
-          Publish opens in T15
+          Publish from My Articles
         </button>
 
         <Link
           href={ROUTES.AUTHOR_ARTICLES}
           className="inline-flex items-center rounded-full border border-stone-300 px-5 py-2.5 text-sm text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
         >
-          View all drafts
+          View My Articles
         </Link>
       </div>
     </form>

@@ -8,7 +8,6 @@ import type { AuthorProfile } from "@/types/domain";
 type OwnerAuthorProfileData = Pick<
   AuthorProfile,
   | "id"
-  | "userId"
   | "penName"
   | "bio"
   | "avatarUrl"
@@ -118,12 +117,15 @@ export function AuthorProfileForm({ initialAuthorProfile }: AuthorProfileFormPro
                 {authorProfile.isActive ? "active" : "inactive"}
               </span>
             </p>
-            <p>Author ID: {authorProfile.id}</p>
+            <p>
+              This public card is what readers see on your author page. Internal owner fields stay
+              hidden.
+            </p>
           </div>
         ) : (
           <p>
             Create your author profile here. This only prepares your pen name and public author
-            card. It does not add article publishing, stats, or subscriptions.
+            card. After creation you can write drafts, publish articles, and let readers subscribe.
           </p>
         )}
       </div>

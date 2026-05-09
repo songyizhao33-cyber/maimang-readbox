@@ -155,7 +155,9 @@ export default function SettingsPage() {
             Settings
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Keep only the public-facing basics here: display name, short bio, and avatar URL.
+            Keep only the safe account basics here: display name, short bio, avatar URL, and your
+            current role. Email, password, auth provider details, and internal IDs are not shown or
+            editable here.
           </p>
         </div>
 
@@ -194,6 +196,12 @@ export default function SettingsPage() {
                 <div className="text-sm font-medium text-stone-700">Workspace</div>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <Link
+                    href={ROUTES.INBOX}
+                    className="inline-flex rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-stone-300"
+                  >
+                    Back to Inbox
+                  </Link>
+                  <Link
                     href={ROUTES.READING_TRACES}
                     className="inline-flex rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-stone-300"
                   >
@@ -207,6 +215,11 @@ export default function SettingsPage() {
                   </Link>
                 </div>
               </div>
+            </div>
+
+            <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm leading-7 text-stone-600">
+              Editable fields are limited to display name, bio, and avatar URL. Attempts to patch
+              role, email, or internal identity fields are rejected by the profile API.
             </div>
 
             <div className="space-y-2">

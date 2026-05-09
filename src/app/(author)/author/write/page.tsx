@@ -113,8 +113,8 @@ export default async function AuthorWritePage({
               Write a draft
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Create your author profile first. Draft writing opens only after you have an author
-              identity.
+              Create your author profile first. Draft writing opens only after you have a public
+              author identity readers can understand and subscribe to.
             </p>
           </div>
 
@@ -170,9 +170,24 @@ export default async function AuthorWritePage({
             {article ? "Edit draft" : "New draft"}
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Save or refine drafts here. Publishing happens from the article list, while
-            subscriptions and inbox delivery remain out of scope in T15.
+            Save or refine plain text drafts here. Drafts remain private until you publish from My
+            Articles; published articles become public and can be delivered to subscribed readers.
           </p>
+        </div>
+
+        <div className="mt-6 grid gap-3 text-sm text-stone-600 sm:grid-cols-3">
+          <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4">
+            <div className="font-medium text-stone-900">1. Save draft</div>
+            <p className="mt-2 leading-7">Write in the simple MVP text form. No autosave.</p>
+          </div>
+          <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4">
+            <div className="font-medium text-stone-900">2. Review list</div>
+            <p className="mt-2 leading-7">Use My Articles to distinguish drafts and published work.</p>
+          </div>
+          <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4">
+            <div className="font-medium text-stone-900">3. Publish deliberately</div>
+            <p className="mt-2 leading-7">Publishing locks editing and opens the public article page.</p>
+          </div>
         </div>
 
         {article?.status && article.status !== "draft" ? (

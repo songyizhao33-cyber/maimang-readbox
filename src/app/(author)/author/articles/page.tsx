@@ -50,6 +50,23 @@ function toArticleListItem(row: ArticleListRow): AuthorArticleListItemData {
   };
 }
 
+function countByStatus(articles: AuthorArticleListItemData[]) {
+  return articles.reduce(
+    (counts, article) => {
+      if (article.status === "draft") {
+        counts.drafts += 1;
+      }
+
+      if (article.status === "published") {
+        counts.published += 1;
+      }
+
+      return counts;
+    },
+    { drafts: 0, published: 0 },
+  );
+}
+
 export default async function AuthorArticlesPage() {
   const supabase = await createClient();
   const {
@@ -114,9 +131,10 @@ export default async function AuthorArticlesPage() {
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
               My articles
             </h1>
-            <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Create your author profile first before you start writing drafts.
-            </p>
+          <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
+            Create your author profile first before you start writing drafts. Your author profile
+            is the public identity attached to published articles.
+          </p>
           </div>
 
           <div className="mt-8 space-y-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-700">
@@ -140,7 +158,9 @@ export default async function AuthorArticlesPage() {
     .in("status", ["draft", "published", "archived"])
     .order("updated_at", { ascending: false });
 
-  const articles = !articleError && articleRows ? articleRows.map((row) => toArticleListItem(row)) : [];
+  const articles =
+    !articleError && articleRows ? articleRows.map((row) => toArticleListItem(row)) : [];
+  const articleCounts = countByStatus(articles);
 
   return (
     <section className="space-y-8">
@@ -153,18 +173,24 @@ export default async function AuthorArticlesPage() {
             My articles
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Manage your own drafts and published articles here. Publishing is now available, but
-            subscription delivery and inbox fan-out stay out of scope in T15.
+            Manage your own drafts and published articles here. Drafts are private; published
+            articles have public reading pages and can enter subscriber inboxes.
           </p>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link
             href={ROUTES.AUTHOR_WRITE}
             className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition hover:bg-stone-800"
           >
             New draft
           </Link>
+          <div className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
+            Drafts: {articleCounts.drafts}
+          </div>
+          <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
+            Published: {articleCounts.published}
+          </div>
         </div>
       </div>
 
@@ -173,8 +199,14 @@ export default async function AuthorArticlesPage() {
           Failed to load your articles. Please refresh and try again.
         </div>
       ) : articles.length === 0 ? (
-        <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-600">
-          You do not have any articles yet.
+        <div className="space-y-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-600">
+          <p>You do not have any articles yet.</p>
+          <Link
+            href={ROUTES.AUTHOR_WRITE}
+            className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
+          >
+            Start a draft
+          </Link>
         </div>
       ) : (
         <div className="grid gap-6">
