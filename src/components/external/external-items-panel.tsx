@@ -368,7 +368,7 @@ export function ExternalItemsPanel({
 
       setItems((current) => [result.data, ...current].slice(0, 50));
       setForm(INITIAL_FORM);
-      setSuccessMessage("External item saved.");
+      setSuccessMessage("Saved to Later.");
     } catch {
       setErrorMessage("Failed to save external item.");
     } finally {
@@ -393,8 +393,8 @@ export function ExternalItemsPanel({
             <p>Only save the link details and short excerpts you enter yourself.</p>
             <p>Do not paste or publicly redistribute unauthorized third-party full text.</p>
             <p>
-              This shelf does not fetch webpages automatically or bypass logins, paywalls, or
-              anti-crawling restrictions.
+              This shelf does not import webpages automatically or bypass logins, paywalls, or
+              publisher access rules.
             </p>
           </div>
 
@@ -510,7 +510,7 @@ export function ExternalItemsPanel({
               disabled={isSubmitting}
               className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Saving..." : "Save to later"}
+              {isSubmitting ? "Saving..." : "Save to Later"}
             </button>
             <p className="text-xs leading-6 text-stone-500">
               Saved as a personal reading item for organization only. This does not mean the

@@ -176,7 +176,7 @@ export default async function InboxPage({
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
               Your subscribed articles are private to your account. Sign in first, then new
-              published work from authors you follow will appear here.
+              published work from authors you subscribe to will appear here.
             </p>
             <Link
               href={ROUTES.LOGIN}
@@ -213,8 +213,8 @@ export default async function InboxPage({
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
             This list only shows platform articles delivered from authors you subscribed to. It
-            stays chronological and intentionally does not turn into a feed, ranking surface, or
-            recommendation stream.
+            stays chronological and intentionally avoids ranking surfaces or recommendation
+            streams.
           </p>
           <InboxFilterTabs currentFilter={currentFilter} />
         </div>

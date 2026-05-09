@@ -238,8 +238,8 @@ export function ArticleReflectionsPanel({
       );
       setSuccessMessage(
         result.data.visibility === "public"
-          ? "Reflection is now public."
-          : "Reflection is now private.",
+          ? "Reflection visibility set to Public."
+          : "Reflection visibility set to Private.",
       );
     } catch {
       setErrorMessage("Failed to update reflection visibility.");

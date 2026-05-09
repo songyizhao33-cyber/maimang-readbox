@@ -67,8 +67,8 @@ export function Sidebar({ hasAuthorProfile, isAuthenticated }: SidebarProps) {
         <section className="mt-auto rounded-3xl border border-stone-200 bg-stone-50 p-5">
           <div className="text-sm font-medium text-stone-900">Product boundary</div>
           <p className="mt-2 text-sm leading-6 text-stone-600">
-            No feed ranking, no hot list, no social pressure. This is a quiet place to enter and
-            return to reading.
+            No ranking loops, no trend chasing, no social pressure. This is a quiet place to enter
+            and return to reading.
           </p>
         </section>
       </div>

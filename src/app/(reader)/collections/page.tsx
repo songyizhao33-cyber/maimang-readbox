@@ -88,9 +88,8 @@ export default async function CollectionsPage() {
             Quiet collection shelves
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Create a few focused shelves for long-term reading themes. You can already add saved
-            external items from the Later page, while article-adding UI stays out of scope for
-            this task.
+            Create focused private shelves for long-term reading themes. Add saved external items
+            from Later, and keep article or source groupings narrow enough to remain useful.
           </p>
         </div>
       </div>

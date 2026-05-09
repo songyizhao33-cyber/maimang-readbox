@@ -248,7 +248,9 @@ export function ArticleNotesPanel({
         ),
       );
       setSuccessMessage(
-        result.data.visibility === "public" ? "Note is now public." : "Note is now private.",
+        result.data.visibility === "public"
+          ? "Note visibility set to Public."
+          : "Note visibility set to Private.",
       );
     } catch {
       setErrorMessage("Failed to update note visibility.");

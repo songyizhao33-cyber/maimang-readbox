@@ -129,7 +129,8 @@ export default async function LaterPage() {
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
             Save your own link metadata, short excerpts, and reading reminders here. This shelf
-            does not fetch webpages, bypass paywalls, or store third-party full text for you.
+            does not import webpages automatically, bypass paywalls, or store third-party full text
+            for you.
           </p>
         </div>
       </div>

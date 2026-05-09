@@ -20,42 +20,42 @@ interface InboxItemMutationData {
 function emptyStateCopy(filter: InboxFilter) {
   if (filter === "unread") {
     return {
-      title: "\u6ca1\u6709\u672a\u8bfb\u6587\u7ae0",
-      description: "\u65b0\u6536\u5230\u7684\u6587\u7ae0\u4f1a\u663e\u793a\u5728\u8fd9\u91cc",
+      title: "No unread articles",
+      description: "New subscription articles appear here before you mark them as reading.",
     };
   }
 
   if (filter === "reading") {
     return {
-      title: "\u8fd8\u6ca1\u6709\u9605\u8bfb\u4e2d\u7684\u6587\u7ae0",
-      description: "\u628a\u4e00\u7bc7\u6587\u7ae0\u6807\u8bb0\u4e3a\u9605\u8bfb\u4e2d\u540e\uff0c\u5b83\u4f1a\u51fa\u73b0\u5728\u8fd9\u91cc",
+      title: "No articles marked as reading",
+      description: "Mark an inbox article as Reading when you want to keep it active.",
     };
   }
 
   if (filter === "starred") {
     return {
-      title: "\u8fd8\u6ca1\u6709\u661f\u6807\u6587\u7ae0",
-      description: "\u7ed9\u9700\u8981\u7a0d\u540e\u56de\u770b\u7684\u6587\u7ae0\u52a0\u4e0a\u661f\u6807",
+      title: "No starred articles",
+      description: "Star articles you want to return to without changing their inbox status.",
     };
   }
 
   if (filter === "archived") {
     return {
-      title: "\u8fd8\u6ca1\u6709\u5f52\u6863\u6587\u7ae0",
-      description: "\u88ab\u5f52\u6863\u7684\u6587\u7ae0\u4f1a\u51fa\u73b0\u5728\u8fd9\u91cc",
+      title: "No archived articles",
+      description: "Archived articles leave the active inbox but remain available here.",
     };
   }
 
   if (filter === "all") {
     return {
-      title: "\u8fd8\u6ca1\u6709\u6536\u5230\u6587\u7ae0",
-      description: "\u8ba2\u9605\u4f5c\u8005\u540e\uff0c\u6240\u6709\u5e73\u53f0\u6587\u7ae0\u90fd\u4f1a\u51fa\u73b0\u5728\u8fd9\u91cc",
+      title: "No subscription articles yet",
+      description: "Subscribe to authors, then their published platform articles will appear here.",
     };
   }
 
   return {
-    title: "\u8fd8\u6ca1\u6709\u6536\u5230\u6587\u7ae0",
-    description: "\u8ba2\u9605\u4f5c\u8005\u540e\uff0c\u65b0\u4f5c\u54c1\u4f1a\u51fa\u73b0\u5728\u8fd9\u91cc",
+    title: "No active inbox articles",
+    description: "Subscribe to authors, then new published work will appear here chronologically.",
   };
 }
 

@@ -95,12 +95,12 @@ export default async function AuthorsPage() {
             Authors
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Authors to follow deliberately
+            Authors to subscribe to deliberately
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
             Browse active public author profiles and subscribe when you want future published
             articles to enter your inbox. The list stays chronological and does not rank, recommend,
-            or expose follower data.
+            or expose subscriber data.
           </p>
         </div>
       </div>
@@ -111,7 +111,7 @@ export default async function AuthorsPage() {
         </div>
       ) : authors.length === 0 ? (
         <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-600">
-          No active authors are publicly listed yet.
+          No public author profiles are listed yet.
         </div>
       ) : (
         <div className="grid gap-6">

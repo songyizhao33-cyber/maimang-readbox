@@ -57,7 +57,7 @@ function summarizeText(value: string, maxLength: number) {
     return normalized;
   }
 
-  return `${normalized.slice(0, maxLength - 1)}…`;
+  return `${normalized.slice(0, maxLength - 3)}...`;
 }
 
 function getTraceLabel(traceType: TraceType) {
@@ -66,6 +66,10 @@ function getTraceLabel(traceType: TraceType) {
 
 function getItemLabel(itemType: SavedItemType) {
   return itemType === "article" ? "Article" : "External item";
+}
+
+function getVisibilityLabel(visibility: Visibility) {
+  return visibility === "public" ? "Public" : "Private";
 }
 
 export function ReadingTraceCard({ trace }: { trace: ReadingTraceView }) {
@@ -84,7 +88,7 @@ export function ReadingTraceCard({ trace }: { trace: ReadingTraceView }) {
             {getItemLabel(trace.itemType)}
           </span>
           <span className="inline-flex items-center rounded-full border border-stone-300 bg-stone-50 px-3 py-1 font-medium text-stone-600">
-            {trace.visibility}
+            {getVisibilityLabel(trace.visibility)}
           </span>
         </div>
 

@@ -301,7 +301,7 @@ export default async function ExternalItemDetailPage({
           <p>{item.legal_note}</p>
           <p className="text-amber-800">
             External items are manually saved for private reading. Maimang Readbox does not expose
-            third-party full text, run automatic crawling, or create public mirrors of the source.
+            third-party full text, import source pages automatically, or republish the source.
           </p>
         </div>
       </section>

@@ -33,14 +33,15 @@ export function ArticlePublicNotesPanel({ notes }: ArticlePublicNotesPanelProps)
       <div className="space-y-6">
         <div className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Public reading notes
+            Public reading traces
           </div>
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
-              Shared reading traces
+              Public notes
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Notes that readers chose to make public for this published article.
+              Notes that readers chose to make public for this published article. They are read-only
+              here and are not comments.
             </p>
           </div>
         </div>

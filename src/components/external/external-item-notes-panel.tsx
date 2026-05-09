@@ -242,7 +242,9 @@ export function ExternalItemNotesPanel({
         ),
       );
       setSuccessMessage(
-        result.data.visibility === "public" ? "Note is now public." : "Note is now private.",
+        result.data.visibility === "public"
+          ? "Note visibility set to Public."
+          : "Note visibility set to Private.",
       );
     } catch {
       setErrorMessage("Failed to update note visibility.");
@@ -263,8 +265,9 @@ export function ExternalItemNotesPanel({
               External item notes
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Keep short notes beside the metadata you saved. External item notes currently remain
-              visible only to you, even if you toggle the visibility field.
+              Keep short notes beside the metadata you saved. External item notes stay in your
+              private workspace in this MVP; visibility labels do not create a public external item
+              page.
             </p>
           </div>
         </div>

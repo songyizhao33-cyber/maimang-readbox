@@ -236,8 +236,8 @@ export function ExternalItemReflectionsPanel({
       );
       setSuccessMessage(
         result.data.visibility === "public"
-          ? "Reflection is now public."
-          : "Reflection is now private.",
+          ? "Reflection visibility set to Public."
+          : "Reflection visibility set to Private.",
       );
     } catch {
       setErrorMessage("Failed to update reflection visibility.");
@@ -258,8 +258,8 @@ export function ExternalItemReflectionsPanel({
               External item reflections
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Keep a longer response after reading. External item reflections currently remain
-              visible only to you, even if you toggle the visibility field.
+              Keep a longer response after reading. External item reflections stay in your private
+              workspace in this MVP; visibility labels do not create a public external item page.
             </p>
           </div>
         </div>
