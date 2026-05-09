@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import type { ApiResponse } from "@/types/api";
@@ -10,6 +11,7 @@ import {
   ExternalItemCard,
   type ExternalItemView,
 } from "@/components/external/external-item-card";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface ExternalItemFormState {
   title: string;
@@ -520,11 +522,32 @@ export function ExternalItemsPanel({
 
       {items.length === 0 ? (
         <div className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-8 text-sm text-stone-600">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <div className="text-base font-medium text-stone-900">
-              {"\u8fd8\u6ca1\u6709\u4fdd\u5b58\u5916\u90e8\u5185\u5bb9"}
+              No external items yet
             </div>
-            <p>{"\u4f60\u53ef\u4ee5\u624b\u52a8\u4fdd\u5b58\u60f3\u7a0d\u540e\u6df1\u8bfb\u7684\u6587\u7ae0\u94fe\u63a5"}</p>
+            <p>
+              Save a source link, short excerpt, or your own note above. Use collections when a
+              saved item starts to belong to a stable topic.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.preventDefault();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
+              >
+                Save external item
+              </button>
+              <Link
+                href={ROUTES.COLLECTIONS}
+                className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400"
+              >
+                Open collections
+              </Link>
+            </div>
           </div>
         </div>
       ) : (

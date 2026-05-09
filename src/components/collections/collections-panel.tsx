@@ -304,11 +304,20 @@ export function CollectionsPanel({
 
         {collections.length === 0 ? (
           <div className="rounded-[1.75rem] border border-dashed border-stone-300 bg-white px-6 py-10 text-center shadow-[0_18px_50px_-34px_rgba(28,25,23,0.16)]">
-            <div className="space-y-2">
+            <div className="space-y-4">
               <h3 className="text-lg font-medium text-stone-900">No collections yet.</h3>
               <p className="text-sm leading-7 text-stone-600">
-                Create a small shelf before you start organizing longer reading threads.
+                Create a small shelf before you start organizing longer reading threads. You can
+                add saved external items from Later after the shelf exists.
               </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <Link
+                  href={ROUTES.LATER}
+                  className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
+                >
+                  Open Later
+                </Link>
+              </div>
             </div>
           </div>
         ) : (

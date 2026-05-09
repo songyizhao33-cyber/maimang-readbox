@@ -10,7 +10,7 @@ import { ROUTES } from "@/lib/constants/routes";
 
 type ProfileResponseData = Pick<
   UserProfile,
-  "id" | "email" | "displayName" | "avatarUrl" | "bio" | "role" | "createdAt" | "updatedAt"
+  "displayName" | "avatarUrl" | "bio" | "role" | "createdAt" | "updatedAt"
 >;
 
 interface ProfileFormState {
@@ -77,7 +77,7 @@ export default function SettingsPage() {
         setForm(toFormState(payload.data));
       } catch {
         if (!cancelled) {
-          setErrorMessage("读取个人资料失败，请稍后重试。");
+          setErrorMessage("Failed to load your profile. Please try again.");
         }
       } finally {
         if (!cancelled) {
@@ -127,9 +127,9 @@ export default function SettingsPage() {
       setAuthRequired(false);
       setProfile(payload.data);
       setForm(toFormState(payload.data));
-      setSuccessMessage(payload.message ?? "保存成功。");
+      setSuccessMessage(payload.message ?? "Profile saved.");
     } catch {
-      setErrorMessage("保存失败，请稍后重试。");
+      setErrorMessage("Failed to save your profile. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -152,47 +152,33 @@ export default function SettingsPage() {
             Profile
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            设置
+            Settings
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            这里只提供当前登录用户的基础资料查看与编辑，不包含作者身份、通知设置或其他扩展功能。
+            Keep only the public-facing basics here: display name, short bio, and avatar URL.
           </p>
         </div>
 
         {isLoading ? (
           <div className="mt-8 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm text-stone-600">
-            正在加载个人资料...
+            Loading profile...
           </div>
         ) : authRequired ? (
           <div className="mt-8 space-y-4 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-5 text-sm text-amber-900">
-            <p>当前未登录，请先登录后再查看或编辑个人资料。</p>
+            <p>Sign in to view or edit your profile.</p>
             <Link
               href={ROUTES.LOGIN}
               className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              前往登录
+              Go to login
             </Link>
           </div>
         ) : profile ? (
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-stone-700">
-                  邮箱
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={profile.email}
-                  readOnly
-                  disabled
-                  className="w-full rounded-2xl border border-stone-200 bg-stone-100 px-4 py-3 text-sm text-stone-500 outline-none"
-                />
-              </div>
-
-              <div className="space-y-2">
                 <label htmlFor="role" className="text-sm font-medium text-stone-700">
-                  角色
+                  Role
                 </label>
                 <input
                   id="role"
@@ -203,11 +189,29 @@ export default function SettingsPage() {
                   className="w-full rounded-2xl border border-stone-200 bg-stone-100 px-4 py-3 text-sm text-stone-500 outline-none"
                 />
               </div>
+
+              <div className="space-y-2 rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3">
+                <div className="text-sm font-medium text-stone-700">Workspace</div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Link
+                    href={ROUTES.READING_TRACES}
+                    className="inline-flex rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-stone-300"
+                  >
+                    Reading Traces
+                  </Link>
+                  <Link
+                    href={ROUTES.AUTHOR_DASHBOARD}
+                    className="inline-flex rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-stone-300"
+                  >
+                    Author Dashboard
+                  </Link>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
               <label htmlFor="displayName" className="text-sm font-medium text-stone-700">
-                显示名称
+                Display name
               </label>
               <input
                 id="displayName"
@@ -216,14 +220,14 @@ export default function SettingsPage() {
                 value={form.displayName}
                 onChange={(event) => updateForm("displayName", event.target.value)}
                 className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-                placeholder="输入显示名称"
+                placeholder="Enter a display name"
                 disabled={isSaving}
               />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="bio" className="text-sm font-medium text-stone-700">
-                个人简介
+                Bio
               </label>
               <textarea
                 id="bio"
@@ -232,14 +236,14 @@ export default function SettingsPage() {
                 value={form.bio}
                 onChange={(event) => updateForm("bio", event.target.value)}
                 className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-                placeholder="可选，最多 300 字"
+                placeholder="Optional, up to 300 characters"
                 disabled={isSaving}
               />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="avatarUrl" className="text-sm font-medium text-stone-700">
-                头像链接
+                Avatar URL
               </label>
               <input
                 id="avatarUrl"
@@ -262,12 +266,12 @@ export default function SettingsPage() {
               disabled={isSaving}
               className="inline-flex items-center justify-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:border-stone-300 disabled:bg-stone-300"
             >
-              {isSaving ? "保存中..." : "保存资料"}
+              {isSaving ? "Saving..." : "Save profile"}
             </button>
           </form>
         ) : (
           <div className="mt-8 rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-            {errorMessage || "未能读取当前用户 profile。"}
+            {errorMessage || "Unable to load your profile."}
           </div>
         )}
       </div>

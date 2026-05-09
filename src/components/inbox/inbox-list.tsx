@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import type { ApiResponse } from "@/types/api";
@@ -8,6 +9,7 @@ import type { InboxStatus } from "@/types/domain";
 
 import type { InboxFilter } from "@/components/inbox/inbox-filter-tabs";
 import { InboxItemCard, type InboxListItemView } from "@/components/inbox/inbox-item-card";
+import { ROUTES } from "@/lib/constants/routes";
 
 interface InboxItemMutationData {
   id: string;
@@ -169,9 +171,23 @@ export function InboxList({
   if (items.length === 0) {
     return (
       <div className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-8 text-sm text-stone-600">
-        <div className="space-y-2">
+        <div className="space-y-4">
           <div className="text-base font-medium text-stone-900">{emptyCopy.title}</div>
           <p>{emptyCopy.description}</p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={ROUTES.AUTHORS}
+              className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
+            >
+              Browse authors
+            </Link>
+            <Link
+              href={ROUTES.LATER}
+              className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400"
+            >
+              Save something for later
+            </Link>
+          </div>
         </div>
       </div>
     );

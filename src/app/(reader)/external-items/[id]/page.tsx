@@ -275,6 +275,12 @@ export default async function ExternalItemDetailPage({
             >
               Back to Later
             </Link>
+            <Link
+              href={ROUTES.READING_TRACES}
+              className="inline-flex items-center rounded-full border border-stone-300 px-5 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
+            >
+              Reading Traces
+            </Link>
           </div>
         </div>
       </header>

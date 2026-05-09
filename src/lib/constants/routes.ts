@@ -7,12 +7,13 @@ export const ROUTES = {
   INBOX: "/inbox",
   LATER: "/later",
   READING_TRACES: "/reading-traces",
-  EXTERNAL_ITEM_DETAIL: (id: string) => `/external-items/${id}`,
   COLLECTIONS: "/collections",
-  COLLECTION_DETAIL: (id: string) => `/collections/${id}`,
   SETTINGS: "/settings",
+
   ARTICLE: (id: string) => `/articles/${id}`,
   AUTHOR_DETAIL: (id: string) => `/authors/${id}`,
+  COLLECTION_DETAIL: (id: string) => `/collections/${id}`,
+  EXTERNAL_ITEM_DETAIL: (id: string) => `/external-items/${id}`,
 
   AUTHOR_DASHBOARD: "/author/dashboard",
   AUTHOR_WRITE: "/author/write",
@@ -24,6 +25,7 @@ export const ROUTES = {
   ADMIN_REPORTS: "/admin/reports",
 
   API_HEALTH: "/api/health",
+  API_AUTH_LOGOUT: "/api/auth/logout",
 } as const;
 
 export interface NavItem {
@@ -37,36 +39,122 @@ export interface NavSection {
   items: NavItem[];
 }
 
+export const DISCOVERY_NAV_ITEMS: NavItem[] = [
+  {
+    label: "Authors",
+    href: ROUTES.AUTHORS,
+    hint: "Browse public author profiles.",
+  },
+];
+
+export const READER_WORKSPACE_NAV_ITEMS: NavItem[] = [
+  {
+    label: "Inbox",
+    href: ROUTES.INBOX,
+    hint: "Published subscription articles.",
+  },
+  {
+    label: "Later",
+    href: ROUTES.LATER,
+    hint: "Your saved external reading items.",
+  },
+  {
+    label: "Collections",
+    href: ROUTES.COLLECTIONS,
+    hint: "Small shelves for stable themes.",
+  },
+  {
+    label: "Reading Traces",
+    href: ROUTES.READING_TRACES,
+    hint: "Your notes and reflections in one view.",
+  },
+];
+
+export const AUTHOR_WORKSPACE_NAV_ITEMS: NavItem[] = [
+  {
+    label: "Author Dashboard",
+    href: ROUTES.AUTHOR_DASHBOARD,
+    hint: "Manage your public author card.",
+  },
+  {
+    label: "Write",
+    href: ROUTES.AUTHOR_WRITE,
+    hint: "Draft and publish your next article.",
+  },
+  {
+    label: "My Articles",
+    href: ROUTES.AUTHOR_ARTICLES,
+    hint: "Review your drafts and published work.",
+  },
+];
+
+export const ACCOUNT_NAV_ITEMS: NavItem[] = [
+  {
+    label: "Settings",
+    href: ROUTES.SETTINGS,
+    hint: "Profile details and account basics.",
+  },
+];
+
+export const AUTH_ACTION_NAV_ITEMS: NavItem[] = [
+  {
+    label: "Login",
+    href: ROUTES.LOGIN,
+    hint: "Sign in to your private reader workspace.",
+  },
+  {
+    label: "Register",
+    href: ROUTES.REGISTER,
+    hint: "Create a new account.",
+  },
+];
+
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
-  { label: "首页", href: ROUTES.HOME, hint: "产品概览" },
-  { label: "作者", href: ROUTES.AUTHORS, hint: "公开作者资料" },
-  { label: "收件箱", href: ROUTES.INBOX, hint: "订阅文章入口" },
-  { label: "待读", href: ROUTES.LATER, hint: "外部保存内容" },
-  { label: "专题", href: ROUTES.COLLECTIONS, hint: "按主题整理" },
+  ...DISCOVERY_NAV_ITEMS,
+  ...READER_WORKSPACE_NAV_ITEMS,
 ];
 
 export const SECONDARY_NAV_SECTIONS: NavSection[] = [
   {
-    title: "作者",
-    items: [
-      {
-        label: "作者后台",
-        href: ROUTES.AUTHOR_DASHBOARD,
-        hint: "作者概览",
-      },
-      {
-        label: "写作",
-        href: ROUTES.AUTHOR_WRITE,
-        hint: "草稿与发布前入口",
-      },
-    ],
+    title: "Writing",
+    items: AUTHOR_WORKSPACE_NAV_ITEMS,
   },
   {
-    title: "系统",
-    items: [
-      { label: "管理后台", href: ROUTES.ADMIN, hint: "内容与举报管理" },
-      { label: "登录", href: ROUTES.LOGIN, hint: "认证占位页" },
-      { label: "注册", href: ROUTES.REGISTER, hint: "认证占位页" },
-    ],
+    title: "Account",
+    items: [...ACCOUNT_NAV_ITEMS, ...AUTH_ACTION_NAV_ITEMS],
   },
 ];
+
+export function getPrimaryNavItems(isAuthenticated: boolean): NavItem[] {
+  return isAuthenticated ? PRIMARY_NAV_ITEMS : DISCOVERY_NAV_ITEMS;
+}
+
+export function getSecondaryNavSections({
+  hasAuthorProfile,
+  isAuthenticated,
+}: {
+  hasAuthorProfile: boolean;
+  isAuthenticated: boolean;
+}): NavSection[] {
+  if (!isAuthenticated) {
+    return [
+      {
+        title: "Account",
+        items: AUTH_ACTION_NAV_ITEMS,
+      },
+    ];
+  }
+
+  return [
+    {
+      title: "Writing",
+      items: hasAuthorProfile
+        ? AUTHOR_WORKSPACE_NAV_ITEMS
+        : [AUTHOR_WORKSPACE_NAV_ITEMS[0]],
+    },
+    {
+      title: "Account",
+      items: ACCOUNT_NAV_ITEMS,
+    },
+  ];
+}

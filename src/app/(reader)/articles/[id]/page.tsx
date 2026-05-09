@@ -249,13 +249,18 @@ export default async function ArticlePage({
               </div>
             </div>
 
-            <button
-              type="button"
-              disabled
-              className="inline-flex cursor-not-allowed items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-stone-400"
+            <Link
+              href={ROUTES.INBOX}
+              className="inline-flex items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50"
             >
-              Subscription opens in T20
-            </button>
+              Back to Inbox
+            </Link>
+            <Link
+              href={ROUTES.READING_TRACES}
+              className="inline-flex items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50"
+            >
+              Reading Traces
+            </Link>
           </div>
         </div>
       </header>

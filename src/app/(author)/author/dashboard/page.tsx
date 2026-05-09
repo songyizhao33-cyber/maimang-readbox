@@ -104,7 +104,7 @@ export default async function AuthorDashboardPage() {
         ) : (
           <div className="mt-8 space-y-6">
             <div className="rounded-3xl border border-stone-200 bg-stone-50 p-5 text-sm text-stone-600">
-              <p>Signed in as: {user.email ?? user.id}</p>
+              <p>Author workspace is available for the current signed-in account.</p>
               <p className="mt-2">
                 {authorProfile
                   ? "Your author profile already exists. You can edit it below."
