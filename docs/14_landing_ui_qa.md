@@ -7,7 +7,8 @@
 ## Commit Under Test
 
 - Application commit: `ccc7a4f feat: redesign landing page with bilingual experience`
-- QA artifact commit: see git history after T60 is committed
+- QA artifact commit: `f6614ac test: add landing page browser qa checklist`
+- T61 visual refinement commit: see git history after T61 is committed
 
 ## Production URL
 
@@ -117,8 +118,12 @@ T60 does not commit screenshot PNG files by default to keep the repository small
 - The committed QA script uses the locally installed Chromium-compatible browser through Chrome DevTools Protocol instead of adding a new dependency.
 - Screenshot PNGs are generated on demand and are not committed by default.
 
+## T61 Follow-Up
+
+T61 refines the landing page visual hierarchy, Chinese typography, product preview copy, and mainland accessibility planning. The QA script now validates the updated hero title, language persistence, public routes, responsive layout, copy-safety checks, and primary CTA contrast so black CTA buttons cannot silently lose visible text again.
+
 ## Go / No-Go
 
 Go.
 
-The T59 landing page is acceptable for small-scope user review. No backend, schema, RLS, or smoke harness changes were required.
+The T61 landing page is acceptable for small-scope user review. No backend, schema, RLS, or smoke harness changes were required.

@@ -14,6 +14,7 @@ import { LandingFeatureGrid } from "./landing-feature-grid";
 import { LandingHero } from "./landing-hero";
 import { LandingProductBoundary } from "./landing-product-boundary";
 import { LandingWorkflow } from "./landing-workflow";
+import { LandingCtaStrip } from "./landing-cta-strip";
 import { LanguageSwitcher } from "./language-switcher";
 
 interface LandingPageProps {
@@ -63,8 +64,8 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
 
   return (
     <div className="min-h-screen bg-[#fbfaf7] text-neutral-950">
-      <header className="sticky top-0 z-20 border-b border-neutral-200/70 bg-[#fbfaf7]/90 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-4 px-6 py-4 sm:flex-row sm:items-center lg:px-8">
+      <header className="sticky top-0 z-20 border-b border-neutral-200/70 bg-[#fbfaf7]/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-4 px-5 py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
           <Link
             href={landingLinks.home}
             className="inline-flex flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-950"
@@ -115,7 +116,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
                   href={landingLinks.register}
                   className="inline-flex rounded-full bg-neutral-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950"
                 >
-                  {copy.nav.register}
+                  <span className="text-white">{copy.nav.register}</span>
                 </Link>
               </>
             )}
@@ -132,6 +133,7 @@ export function LandingPage({ isAuthenticated }: LandingPageProps) {
         <LandingFeatureGrid locale={locale} />
         <LandingWorkflow locale={locale} />
         <LandingProductBoundary locale={locale} />
+        <LandingCtaStrip isAuthenticated={isAuthenticated} locale={locale} />
       </main>
 
       <footer className="border-t border-neutral-200 bg-white">

@@ -22,22 +22,49 @@ export const landingCopy = {
       register: "注册",
     },
     hero: {
-      eyebrow: "安静的深度阅读收件箱",
-      title: "让订阅像收信一样抵达，而不是像信息流一样喧闹。",
+      eyebrow: "给深度阅读一个安静入口",
+      titleLines: ["把订阅、保存和笔记", "放回安静的阅读空间。"],
       subtitle:
-        "麦芒订阅是一款安静的深度阅读工具：订阅作者，接收文章，手动保存外部内容，并把笔记、读后感和专题整理留在自己的阅读空间里。",
+        "麦芒订阅是一款安静的深度阅读工具。你可以订阅作者、接收文章、手动保存外部内容，并把笔记、读后感和专题整理留在自己的阅读空间里。",
       primaryCta: "开始阅读",
-      authenticatedCta: "进入 Inbox",
+      authenticatedCta: "进入收件箱",
       secondaryCta: "浏览作者",
+      loginCta: "登录",
       note: "没有热榜、推荐流或复杂社交压力。",
     },
+    preview: {
+      eyebrow: "阅读空间预览",
+      title: "今日收件箱",
+      badge: "3 篇待读",
+      items: [
+        {
+          kind: "作者新文章",
+          title: "城市、记忆与日常阅读",
+          meta: "来自已订阅作者",
+        },
+        {
+          kind: "手动保存",
+          title: "一篇稍后阅读的外部文章",
+          meta: "保留来源、摘录和阅读入口",
+        },
+        {
+          kind: "私人笔记",
+          title: "这段材料可以放入“城市文化”专题",
+          meta: "只在自己的阅读空间里沉淀",
+        },
+      ],
+      traceTitle: "阅读痕迹",
+      traceDescription: "笔记、读后感和专题会跟随原文保留下来。",
+      collectionTitle: "专题",
+      collectionName: "城市文化",
+    },
     values: {
-      eyebrow: "为什么存在",
-      title: "只留下真正帮助阅读的部分",
+      eyebrow: "核心价值",
+      title: "少一点噪音，多一点沉淀",
       items: [
         {
           title: "订阅作者",
-          description: "文章进入你的 Inbox，而不是被算法流冲走。",
+          description: "把你真正关心的作者放进自己的阅读列表。",
         },
         {
           title: "保存外部阅读",
@@ -51,13 +78,28 @@ export const landingCopy = {
     },
     workflow: {
       eyebrow: "阅读路径",
-      title: "从订阅到沉淀，只保留必要步骤",
+      title: "从接收文章到沉淀阅读",
       steps: [
-        "订阅作者",
-        "文章进入 Inbox",
-        "阅读并记录笔记",
-        "保存外部内容到 Later",
-        "用 Collections 和 Reading Traces 长期整理",
+        {
+          title: "订阅作者",
+          description: "把你真正关心的作者放进自己的阅读列表。",
+        },
+        {
+          title: "文章进入收件箱",
+          description: "新文章像邮件一样抵达，而不是被信息流冲走。",
+        },
+        {
+          title: "阅读并记录笔记",
+          description: "把关键段落、想法和读后感留在原文旁边。",
+        },
+        {
+          title: "手动保存外部内容",
+          description: "遇到值得回看的链接，先放进稍后阅读。",
+        },
+        {
+          title: "长期整理",
+          description: "用专题和阅读痕迹，把零散阅读变成结构。",
+        },
       ],
     },
     boundary: {
@@ -66,15 +108,20 @@ export const landingCopy = {
       description:
         "麦芒订阅不追逐热榜，不制造推荐流，也不自动搬运第三方全文。它只帮助你接收、保存、阅读和整理自己真正关心的内容。",
       items: [
-        "没有推荐流和热榜",
+        "没有热榜和推荐流",
         "没有评论、私信和复杂社交压力",
         "不自动抓取或公开第三方全文",
-        "不用 AI 摘要替代阅读",
       ],
+    },
+    finalCta: {
+      title: "从一个安静的收件箱开始。",
+      description: "先订阅作者，再把真正值得读的内容慢慢留下来。",
+      primaryCta: "开始阅读",
+      secondaryCta: "浏览作者",
     },
     footer: {
       summary: "一个面向订阅、稍后阅读、笔记和专题整理的安静阅读空间。",
-      apiHealth: "API Health",
+      apiHealth: "系统状态",
     },
   },
   en: {
@@ -89,22 +136,53 @@ export const landingCopy = {
       register: "Register",
     },
     hero: {
-      eyebrow: "A quiet readbox for deep reading",
-      title: "Let subscriptions arrive like letters, not shout like a feed.",
+      eyebrow: "A calm entry point for deep reading",
+      titleLines: [
+        "A quiet home for subscriptions,",
+        "saved reading, and private notes.",
+      ],
       subtitle:
-        "Maimang Readbox is a quiet reading tool for following authors, receiving articles, saving external reading by hand, and keeping notes, reflections, and collections in your own reading space.",
+        "Maimang Readbox helps you subscribe to authors, receive long-form writing, save external reading manually, and keep notes, reflections, and collections in one calm workspace.",
       primaryCta: "Start reading",
       authenticatedCta: "Open Inbox",
       secondaryCta: "Browse authors",
+      loginCta: "Login",
       note: "No trending loops, recommendation feeds, or heavy social pressure.",
     },
+    preview: {
+      eyebrow: "Reading workspace preview",
+      title: "Today’s inbox",
+      badge: "3 unread",
+      items: [
+        {
+          kind: "New essay",
+          title: "Cities, memory, and everyday reading",
+          meta: "From an author you follow",
+        },
+        {
+          kind: "Saved reading",
+          title: "An external article saved for later",
+          meta: "Source, excerpt, and reading entry preserved",
+        },
+        {
+          kind: "Private note",
+          title: "This passage belongs in the Urban Culture collection",
+          meta: "Kept inside your own reading workspace",
+        },
+      ],
+      traceTitle: "Reading Traces",
+      traceDescription:
+        "Notes, reflections, and collections stay connected to the source.",
+      collectionTitle: "Collection",
+      collectionName: "Urban Culture",
+    },
     values: {
-      eyebrow: "Why it exists",
-      title: "Only the parts that help reading stay",
+      eyebrow: "Core value",
+      title: "Less noise, more durable reading",
       items: [
         {
           title: "Subscribe to authors",
-          description: "Articles arrive in your Inbox instead of being swept away by feeds.",
+          description: "Keep the writers you care about in your own reading list.",
         },
         {
           title: "Save external reading",
@@ -118,13 +196,28 @@ export const landingCopy = {
     },
     workflow: {
       eyebrow: "Reading path",
-      title: "From subscription to lasting notes",
+      title: "From incoming articles to lasting notes",
       steps: [
-        "Subscribe to authors",
-        "Articles enter Inbox",
-        "Read and keep notes",
-        "Save external items to Later",
-        "Organize with Collections and Reading Traces",
+        {
+          title: "Subscribe to authors",
+          description: "Choose the writers you actually want to follow.",
+        },
+        {
+          title: "Articles enter Inbox",
+          description: "New writing arrives calmly instead of disappearing in a feed.",
+        },
+        {
+          title: "Read and keep notes",
+          description: "Keep key passages, thoughts, and reflections beside the source.",
+        },
+        {
+          title: "Save external reading",
+          description: "Put worthwhile links into Later before you lose them.",
+        },
+        {
+          title: "Organize over time",
+          description: "Use collections and reading traces to turn fragments into structure.",
+        },
       ],
     },
     boundary: {
@@ -133,15 +226,21 @@ export const landingCopy = {
       description:
         "Maimang Readbox does not chase trending lists, manufacture recommendation feeds, or mirror third-party full text. It helps you receive, save, read, and organize the work you actually care about.",
       items: [
-        "No recommendation feeds or trending loops",
+        "No trending lists or recommendation feeds",
         "No comments, direct messages, or social pressure",
         "No automatic crawling or public mirrors of third-party full text",
-        "No AI summaries replacing reading",
       ],
+    },
+    finalCta: {
+      title: "Start with one quiet inbox.",
+      description:
+        "Follow authors first, then keep the reading that is worth returning to.",
+      primaryCta: "Start reading",
+      secondaryCta: "Browse authors",
     },
     footer: {
       summary: "A quiet reading space for subscriptions, later reading, notes, and collections.",
-      apiHealth: "API Health",
+      apiHealth: "System status",
     },
   },
 } as const;

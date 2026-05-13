@@ -7,7 +7,7 @@ Use test accounts only. Do not use real passwords, real private reading data, or
 ## Demo Path
 
 1. Open the app homepage.
-   - Say: "Maimang Readbox is an anti-feed reading workspace: subscriptions, saved external reading, and private traces."
+   - Say: "Maimang Readbox is a quiet reading space for subscriptions, saved external reading, private notes, and long-term organization."
 
 2. Sign in with a test reader account.
    - Avoid showing real credentials.

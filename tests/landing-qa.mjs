@@ -13,14 +13,15 @@ const SCREENSHOT_DIR =
 const LOCALE_STORAGE_KEY = "maimang-locale";
 
 const REQUIRED_HTML_TEXT = [
-  "让订阅像收信一样抵达",
+  "把订阅、保存和笔记",
+  "放回安静的阅读空间",
   "开始阅读",
   "作者",
   "登录",
   "注册",
   "中文",
   "EN",
-  "API Health",
+  "系统状态",
 ];
 
 const FORBIDDEN_TEXT = [
@@ -548,6 +549,17 @@ function assertViewportChecks(viewport, checks) {
   );
   assert(checks.hasPrimaryCta, `${viewport.name} cta`, "missing primary CTA");
   assert(checks.primaryCtaText.length > 0, `${viewport.name} cta`, "empty primary CTA");
+  assert(
+    contrastRatio(
+      parseRgb(checks.primaryCtaColor),
+      parseRgb(checks.primaryCtaBackgroundColor),
+    ) >= 4.5,
+    `${viewport.name} cta`,
+    `primary CTA contrast below AA: ${JSON.stringify({
+      color: checks.primaryCtaColor,
+      backgroundColor: checks.primaryCtaBackgroundColor,
+    })}`,
+  );
   assert(checks.hasAuthorsLink, `${viewport.name} nav`, "missing authors link");
   assert(checks.hasLoginLink, `${viewport.name} nav`, "missing login link");
   assert(checks.hasRegisterLink, `${viewport.name} nav`, "missing register link");
@@ -600,6 +612,7 @@ async function runBrowserChecks() {
           const text = document.body.innerText;
           const hero = document.querySelector("main section");
           const primaryCta = hero?.querySelector('a[href="/register"], a[href="/inbox"]');
+          const primaryCtaTextNode = primaryCta?.querySelector("span") ?? primaryCta;
           const darkElements = Array.from(document.querySelectorAll('[class*="bg-neutral-950"], [class*="bg-stone-950"]'));
           const darkSamples = darkElements.flatMap((element) => {
             const backgroundColor = getComputedStyle(element).backgroundColor;
@@ -632,6 +645,8 @@ async function runBrowserChecks() {
             hasPrimaryCta: Boolean(primaryCta),
             primaryCtaText: primaryCta?.textContent.trim() ?? "",
             primaryCtaHref: primaryCta?.getAttribute("href") ?? "",
+            primaryCtaColor: primaryCtaTextNode ? getComputedStyle(primaryCtaTextNode).color : "",
+            primaryCtaBackgroundColor: primaryCta ? getComputedStyle(primaryCta).backgroundColor : "",
             hasAuthorsLink: Boolean(document.querySelector('a[href="/authors"]')),
             hasLoginLink: Boolean(document.querySelector('a[href="/login"]')),
             hasRegisterLink: Boolean(document.querySelector('a[href="/register"]')),
@@ -647,7 +662,8 @@ async function runBrowserChecks() {
       );
 
       assert(
-        defaultChecks.text.includes("让订阅像收信一样抵达"),
+        defaultChecks.text.includes("把订阅、保存和笔记") &&
+          defaultChecks.text.includes("放回安静的阅读空间"),
         `${viewport.name} default locale`,
         "Chinese title was not visible",
       );
@@ -701,7 +717,7 @@ async function runBrowserChecks() {
       await waitForCondition(
         client,
         sessionId,
-        `document.body.innerText.includes("Let subscriptions arrive like letters") && localStorage.getItem("${LOCALE_STORAGE_KEY}") === "en"`,
+        `document.body.innerText.includes("A quiet home for subscriptions") && localStorage.getItem("${LOCALE_STORAGE_KEY}") === "en"`,
         `${viewport.name} english switch`,
       );
 
@@ -709,7 +725,7 @@ async function runBrowserChecks() {
       await waitForCondition(
         client,
         sessionId,
-        `document.body.innerText.includes("Let subscriptions arrive like letters") && localStorage.getItem("${LOCALE_STORAGE_KEY}") === "en"`,
+        `document.body.innerText.includes("A quiet home for subscriptions") && localStorage.getItem("${LOCALE_STORAGE_KEY}") === "en"`,
         `${viewport.name} english persistence`,
       );
 
@@ -718,7 +734,7 @@ async function runBrowserChecks() {
         sessionId,
         `(() => ({
           horizontalOverflow: Math.max(0, document.documentElement.scrollWidth - window.innerWidth),
-          titleVisible: document.body.innerText.includes("Let subscriptions arrive like letters"),
+          titleVisible: document.body.innerText.includes("A quiet home for subscriptions"),
           overflowingElements: Array.from(document.querySelectorAll("h1,h2,h3,p,a,button,li"))
             .filter((element) => {
               const rect = element.getBoundingClientRect();
@@ -768,7 +784,7 @@ async function runBrowserChecks() {
       await waitForCondition(
         client,
         sessionId,
-        `document.body.innerText.includes("让订阅像收信一样抵达") && localStorage.getItem("${LOCALE_STORAGE_KEY}") === "zh"`,
+        `document.body.innerText.includes("把订阅、保存和笔记") && document.body.innerText.includes("放回安静的阅读空间") && localStorage.getItem("${LOCALE_STORAGE_KEY}") === "zh"`,
         `${viewport.name} chinese switch`,
       );
 
@@ -776,7 +792,7 @@ async function runBrowserChecks() {
       await waitForCondition(
         client,
         sessionId,
-        `document.body.innerText.includes("让订阅像收信一样抵达") && localStorage.getItem("${LOCALE_STORAGE_KEY}") === "zh"`,
+        `document.body.innerText.includes("把订阅、保存和笔记") && document.body.innerText.includes("放回安静的阅读空间") && localStorage.getItem("${LOCALE_STORAGE_KEY}") === "zh"`,
         `${viewport.name} chinese persistence`,
       );
     }
