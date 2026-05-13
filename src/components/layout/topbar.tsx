@@ -37,7 +37,7 @@ export function Topbar({ hasAuthorProfile, isAuthenticated }: TopbarProps) {
             </p>
           </div>
           <div className="hidden rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-500 md:block">
-            MVP navigation
+            Quiet workspace
           </div>
         </div>
 
