@@ -37,14 +37,19 @@ This document lists current limitations plainly. These are not completed capabil
 - There is no systematic Playwright/Cypress-style end-to-end browser suite yet.
 - Mobile layout has been considered in page structure, but still needs dedicated device-level acceptance.
 - Real email delivery is not validated unless SMTP and Auth email settings are configured in Supabase.
+- Small beta feedback should not be treated as full public-release acceptance.
+- There is no long-term production test-data cleanup policy yet; smoke and trial data should be reviewed before broader launch.
 
 ## Deployment Limits
 
-- Production deployment is not performed by this repository task.
+- Current trial entry is `https://maimang-readbox.vercel.app`.
+- No custom domain is configured yet.
+- `.vercel.app` access may be unstable on some networks and should be tracked during beta.
 - Supabase production Auth Site URL and Redirect URLs must be configured before release.
 - Email confirmation strategy must be decided before production smoke if automated test login is required.
 - Preview and production environment variables must be checked separately.
 - The runtime code does not require a service role key; using one would be outside the current MVP boundary.
+- The current trial does not include a formal user-support channel.
 
 ## Future Work Candidates
 
@@ -53,3 +58,4 @@ This document lists current limitations plainly. These are not completed capabil
 - Dedicated staging Supabase project for production-like smoke.
 - Better admin-facing operational documentation.
 - Search or tags only after the current quiet-reading MVP is accepted.
+- Custom domain, DNS, and Supabase Auth redirect finalization after a domain is selected.

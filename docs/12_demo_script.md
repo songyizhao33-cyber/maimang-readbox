@@ -4,10 +4,24 @@ Target length: 5-8 minutes.
 
 Use test accounts only. Do not use real passwords, real private reading data, or production user records in a recording.
 
+Recommended demo entry:
+
+https://maimang-readbox.vercel.app
+
+Demo notes:
+
+- Prefer the Chinese interface for the first small beta demo.
+- Start from the landing page and show the language switch once.
+- Explain that the current entry is still the Vercel URL and may be unstable on some networks.
+- Do not show real secrets, private account data, tokens, cookies, or `.env.local`.
+- Use public links or fictional examples when demonstrating external items.
+- End by asking testers to fill in `docs/17_beta_feedback_template.md`.
+
 ## Demo Path
 
 1. Open the app homepage.
    - Say: "Maimang Readbox is a quiet reading space for subscriptions, saved external reading, private notes, and long-term organization."
+   - Show the default Chinese landing page, then switch to English and back if the audience wants to see bilingual support.
 
 2. Sign in with a test reader account.
    - Avoid showing real credentials.

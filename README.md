@@ -97,6 +97,20 @@ node scripts/smoke-mvp.mjs
 
 The smoke harness creates timestamped temporary users and test data. It does not use a service role key and does not print cookies, tokens, passwords, or `.env.local` contents.
 
+## Current Trial Entry
+
+Small beta trial entry:
+
+https://maimang-readbox.vercel.app
+
+Notes:
+
+- The app is ready for a 1-3 person small beta trial.
+- A custom domain has not been selected yet.
+- Keep the Vercel URL as the current trial and fallback entry.
+- Some networks may have unstable access to `.vercel.app`; record device, browser, network, and proxy usage in beta feedback.
+- See `docs/16_beta_trial_plan.md`, `docs/17_beta_feedback_template.md`, and `docs/18_beta_issue_log.md` before inviting testers.
+
 ## MVP Features
 
 - Auth and safe profile DTOs
@@ -149,5 +163,10 @@ The smoke harness creates timestamped temporary users and test data. It does not
 - `docs/11_deployment_readiness.md`
 - `docs/12_demo_script.md`
 - `docs/13_known_limitations.md`
+- `docs/14_landing_ui_qa.md`
+- `docs/15_mainland_accessibility_plan.md`
+- `docs/16_beta_trial_plan.md`
+- `docs/17_beta_feedback_template.md`
+- `docs/18_beta_issue_log.md`
 
 Use `docs/11_deployment_readiness.md` as the deployment gate before any production release.

@@ -15,6 +15,24 @@ The application is deployed and reachable in browser checks, and production smok
 - Terminal smoke can run through a proxy when local network resolution is blocked.
 - CI-based smoke, such as GitHub Actions, can be used as an additional neutral network check.
 
+## T62 Blocker Status
+
+T62 custom-domain setup is paused because no purchased or selected domain is currently available.
+
+Current position:
+
+- Continue using `https://maimang-readbox.vercel.app` for the small beta.
+- Keep the Vercel URL as the fallback entry.
+- Do not update Vercel Domains, DNS, Supabase Auth Site URL, or Supabase Redirect URLs until a domain is selected.
+- Resume the custom-domain workflow after the domain and DNS provider are known.
+
+During beta, ask testers to record:
+
+- Whether the site opened without a proxy.
+- Network location or ISP if they can share it.
+- Device and browser.
+- Any DNS, TLS, blank-screen, or loading failure.
+
 ## Recommended No-Proxy Access Path
 
 To make access as reliable as possible without a proxy, the next deployment pass should evaluate:
