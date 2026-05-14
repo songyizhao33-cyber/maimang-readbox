@@ -73,7 +73,7 @@ export function ArticleDraftCard({ article }: ArticleDraftCardProps) {
 
       router.refresh();
     } catch {
-      setErrorMessage("Failed to publish article. Please try again.");
+      setErrorMessage("发布失败，请稍后重试。");
     } finally {
       setIsPublishing(false);
     }
@@ -85,8 +85,8 @@ export function ArticleDraftCard({ article }: ArticleDraftCardProps) {
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-stone-400">
             <ArticleStatusBadge status={article.status} />
-            <span>Updated {formatDate(article.updatedAt)}</span>
-            {article.publishedAt ? <span>Published {formatDate(article.publishedAt)}</span> : null}
+            <span>更新于 {formatDate(article.updatedAt)}</span>
+            {article.publishedAt ? <span>发布于 {formatDate(article.publishedAt)}</span> : null}
           </div>
           <h2 className="text-xl font-semibold tracking-tight text-stone-950">
             {article.title}
@@ -109,11 +109,11 @@ export function ArticleDraftCard({ article }: ArticleDraftCardProps) {
               href={`${ROUTES.AUTHOR_WRITE}?id=${article.id}`}
               className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              Continue editing
+              继续编辑
             </Link>
           ) : (
             <span className="inline-flex cursor-not-allowed items-center rounded-full border border-stone-200 px-4 py-2 text-stone-400">
-              Editing locked after publish
+              发布后暂不可编辑
             </span>
           )}
 
@@ -124,7 +124,7 @@ export function ArticleDraftCard({ article }: ArticleDraftCardProps) {
               disabled={isPublishing}
               className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-stone-50 transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:border-stone-300 disabled:bg-stone-300"
             >
-              {isPublishing ? "Publishing..." : "Publish"}
+              {isPublishing ? "正在发布..." : "发布"}
             </button>
           ) : null}
 
@@ -133,7 +133,7 @@ export function ArticleDraftCard({ article }: ArticleDraftCardProps) {
               href={ROUTES.ARTICLE(article.id)}
               className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              View public article
+              查看公开文章
             </Link>
           ) : null}
 
@@ -143,8 +143,7 @@ export function ArticleDraftCard({ article }: ArticleDraftCardProps) {
         </div>
 
         <p className="text-xs leading-6 text-stone-500">
-          Drafts stay private in your author workspace. Published articles can be read publicly and
-          delivered to subscribed readers.
+          草稿只保留在作者工作区。发布后文章会公开，并进入订阅读者的收件箱。
         </p>
       </div>
     </article>

@@ -29,8 +29,8 @@ export function LogoutButton() {
       disabled={isPending}
       className="block w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      <div className="text-sm font-medium">{isPending ? "Logging out..." : "Logout"}</div>
-      <div className="mt-1 text-xs text-stone-500">End this local session.</div>
+      <div className="text-sm font-medium">{isPending ? "正在退出..." : "退出"}</div>
+      <div className="mt-1 text-xs text-stone-500">结束当前登录会话。</div>
     </button>
   );
 }

@@ -99,7 +99,7 @@ export function CollectionsPanel({
         const message =
           "error" in result && result.error?.message
             ? result.error.message
-            : "Failed to create collection.";
+            : "创建专题失败。";
         setErrorMessage(message);
         return;
       }
@@ -115,9 +115,9 @@ export function CollectionsPanel({
         ...current,
       ]);
       setForm(INITIAL_FORM);
-      setSuccessMessage("Collection created.");
+      setSuccessMessage("专题已创建。");
     } catch {
-      setErrorMessage("Failed to create collection.");
+      setErrorMessage("创建专题失败。");
     } finally {
       setIsSubmitting(false);
     }
@@ -147,7 +147,7 @@ export function CollectionsPanel({
         const message =
           "error" in result && result.error?.message
             ? result.error.message
-            : "Failed to update collection.";
+            : "更新专题失败。";
         setErrorMessage(message);
         return;
       }
@@ -166,9 +166,9 @@ export function CollectionsPanel({
         ),
       );
       cancelEditing();
-      setSuccessMessage("Collection updated.");
+      setSuccessMessage("专题已更新。");
     } catch {
-      setErrorMessage("Failed to update collection.");
+      setErrorMessage("更新专题失败。");
     } finally {
       setPendingCollectionId(null);
       setPendingAction(null);
@@ -176,7 +176,7 @@ export function CollectionsPanel({
   }
 
   async function handleDelete(collection: CollectionView) {
-    const confirmed = window.confirm(`Delete "${collection.name}"?`);
+    const confirmed = window.confirm(`确定删除“${collection.name}”吗？`);
 
     if (!confirmed) {
       return;
@@ -197,7 +197,7 @@ export function CollectionsPanel({
         const message =
           "error" in result && result.error?.message
             ? result.error.message
-            : "Failed to delete collection.";
+            : "删除专题失败。";
         setErrorMessage(message);
         return;
       }
@@ -210,9 +210,9 @@ export function CollectionsPanel({
         cancelEditing();
       }
 
-      setSuccessMessage("Collection deleted.");
+      setSuccessMessage("专题已删除。");
     } catch {
-      setErrorMessage("Failed to delete collection.");
+      setErrorMessage("删除专题失败。");
     } finally {
       setPendingCollectionId(null);
       setPendingAction(null);
@@ -225,16 +225,16 @@ export function CollectionsPanel({
         <div className="space-y-5">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
-              Create a collection
+              创建专题
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-stone-600">
-              Keep the name specific enough that you will still understand the shelf months later.
+              给长期阅读主题一个清晰名称，之后可以把文章和外部内容放进来。
             </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <label className="space-y-2">
-              <span className="text-sm font-medium text-stone-700">Name</span>
+              <span className="text-sm font-medium text-stone-700">名称</span>
               <input
                 type="text"
                 value={form.name}
@@ -245,14 +245,14 @@ export function CollectionsPanel({
                   }))
                 }
                 className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
-                placeholder="Long-form essays, product strategy, design references..."
+                placeholder="城市文化、产品思考、设计参考..."
                 maxLength={80}
                 required
               />
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium text-stone-700">Description</span>
+              <span className="text-sm font-medium text-stone-700">说明</span>
               <textarea
                 value={form.description}
                 onChange={(event) =>
@@ -262,7 +262,7 @@ export function CollectionsPanel({
                   }))
                 }
                 className="min-h-28 w-full rounded-3xl border border-stone-200 px-4 py-3 text-sm leading-7 text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
-                placeholder="Optional note about why this collection exists."
+                placeholder="可选：这个专题为什么存在"
                 maxLength={300}
               />
             </label>
@@ -273,7 +273,7 @@ export function CollectionsPanel({
                 disabled={isSubmitting}
                 className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? "Creating..." : "Create collection"}
+                {isSubmitting ? "正在创建..." : "创建专题"}
               </button>
             </div>
           </form>
@@ -283,10 +283,10 @@ export function CollectionsPanel({
       <section className="space-y-4">
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
-            Your collections
+            我的专题
           </h2>
           <p className="text-sm leading-7 text-stone-600">
-            Use small, stable shelves instead of trying to model everything at once.
+            用小而稳定的专题整理长期阅读，不必一次建得很复杂。
           </p>
         </div>
 
@@ -305,17 +305,16 @@ export function CollectionsPanel({
         {collections.length === 0 ? (
           <div className="rounded-[1.75rem] border border-dashed border-stone-300 bg-white px-6 py-10 text-center shadow-[0_18px_50px_-34px_rgba(28,25,23,0.16)]">
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-stone-900">No collections yet.</h3>
+              <h3 className="text-lg font-medium text-stone-900">还没有专题</h3>
               <p className="text-sm leading-7 text-stone-600">
-                Create a small shelf before you start organizing longer reading threads. You can
-                add saved external items from Later after the shelf exists.
+                先创建一个小专题，再把稍后阅读里的外部内容加入进来。
               </p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link
                   href={ROUTES.LATER}
                   className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
                 >
-                  Open Later
+                  打开稍后阅读
                 </Link>
               </div>
             </div>
@@ -339,13 +338,13 @@ export function CollectionsPanel({
                       onSubmit={(event) => handleUpdate(event, collection.id)}
                     >
                       <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.16em] text-stone-400">
-                        <span>Editing collection</span>
-                        <span>Created {formatDate(collection.createdAt)}</span>
-                        <span>Updated {formatDate(collection.updatedAt)}</span>
+                        <span>正在编辑专题</span>
+                        <span>创建于 {formatDate(collection.createdAt)}</span>
+                        <span>更新于 {formatDate(collection.updatedAt)}</span>
                       </div>
 
                       <label className="space-y-2">
-                        <span className="text-sm font-medium text-stone-700">Name</span>
+                        <span className="text-sm font-medium text-stone-700">名称</span>
                         <input
                           type="text"
                           value={editForm.name}
@@ -362,7 +361,7 @@ export function CollectionsPanel({
                       </label>
 
                       <label className="space-y-2">
-                        <span className="text-sm font-medium text-stone-700">Description</span>
+                        <span className="text-sm font-medium text-stone-700">说明</span>
                         <textarea
                           value={editForm.description}
                           onChange={(event) =>
@@ -382,7 +381,7 @@ export function CollectionsPanel({
                           disabled={isUpdating}
                           className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          {isUpdating ? "Saving..." : "Save"}
+                          {isUpdating ? "正在保存..." : "保存"}
                         </button>
                         <button
                           type="button"
@@ -390,7 +389,7 @@ export function CollectionsPanel({
                           disabled={isUpdating}
                           className="inline-flex items-center rounded-full border border-stone-200 px-5 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-300 hover:text-stone-900 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          Cancel
+                          取消
                         </button>
                       </div>
                     </form>
@@ -398,16 +397,16 @@ export function CollectionsPanel({
                     <div className="space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.16em] text-stone-400">
-                          <span>Private collection</span>
-                          <span>Created {formatDate(collection.createdAt)}</span>
-                          <span>Updated {formatDate(collection.updatedAt)}</span>
+                          <span>私人专题</span>
+                          <span>创建于 {formatDate(collection.createdAt)}</span>
+                          <span>更新于 {formatDate(collection.updatedAt)}</span>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                           <Link
                             href={ROUTES.COLLECTION_DETAIL(collection.id)}
                             className="inline-flex items-center rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-300 hover:text-stone-950"
                           >
-                            Open
+                            打开
                           </Link>
                           <button
                             type="button"
@@ -415,7 +414,7 @@ export function CollectionsPanel({
                             disabled={pendingCollectionId === collection.id}
                             className="inline-flex items-center rounded-full border border-stone-200 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-300 hover:text-stone-950 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            Edit
+                            编辑
                           </button>
                           <button
                             type="button"
@@ -423,7 +422,7 @@ export function CollectionsPanel({
                             disabled={pendingCollectionId === collection.id}
                             className="inline-flex items-center rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:border-red-300 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-60"
                           >
-                            {isDeleting ? "Deleting..." : "Delete"}
+                            {isDeleting ? "正在删除..." : "删除"}
                           </button>
                         </div>
                       </div>
@@ -437,7 +436,7 @@ export function CollectionsPanel({
                           </p>
                         ) : (
                           <p className="text-sm leading-7 text-stone-500">
-                            No description yet.
+                            暂无说明。
                           </p>
                         )}
                       </div>

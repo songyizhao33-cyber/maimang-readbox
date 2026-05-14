@@ -106,7 +106,7 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
 
       setArticle(payload.data);
       setForm(toFormState(payload.data));
-      setSuccessMessage(payload.message ?? "Draft saved.");
+      setSuccessMessage(payload.message ?? "草稿已保存。");
 
       if (method === "POST") {
         router.replace(`${ROUTES.AUTHOR_WRITE}?id=${payload.data.id}`);
@@ -114,7 +114,7 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
         router.refresh();
       }
     } catch {
-      setErrorMessage("Failed to save draft. Please try again.");
+      setErrorMessage("草稿保存失败，请稍后重试。");
     } finally {
       setIsSaving(false);
     }
@@ -125,7 +125,7 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
           <label htmlFor="title" className="text-sm font-medium text-stone-700">
-            Title
+            标题
           </label>
           <input
             id="title"
@@ -136,13 +136,13 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
             required
             disabled={isSaving}
             className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-            placeholder="Draft title"
+            placeholder="草稿标题"
           />
         </div>
 
         <div className="space-y-2 sm:col-span-2">
           <label htmlFor="subtitle" className="text-sm font-medium text-stone-700">
-            Subtitle
+            副标题
           </label>
           <input
             id="subtitle"
@@ -152,7 +152,7 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
             maxLength={200}
             disabled={isSaving}
             className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-            placeholder="Optional subtitle"
+            placeholder="可选副标题"
           />
         </div>
 
@@ -168,13 +168,13 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
             maxLength={120}
             disabled={isSaving}
             className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-            placeholder="Optional. Leave blank to auto-generate."
+            placeholder="可选。留空会自动生成。"
           />
         </div>
 
         <div className="space-y-2">
           <label htmlFor="coverUrl" className="text-sm font-medium text-stone-700">
-            Cover URL
+            封面 URL
           </label>
           <input
             id="coverUrl"
@@ -189,7 +189,7 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
 
         <div className="space-y-2 sm:col-span-2">
           <label htmlFor="excerpt" className="text-sm font-medium text-stone-700">
-            Excerpt
+            摘要
           </label>
           <textarea
             id="excerpt"
@@ -199,13 +199,13 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
             maxLength={500}
             disabled={isSaving}
             className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-            placeholder="Optional summary"
+            placeholder="可选摘要"
           />
         </div>
 
         <div className="space-y-2 sm:col-span-2">
           <label htmlFor="content" className="text-sm font-medium text-stone-700">
-            Content
+            正文
           </label>
           <textarea
             id="content"
@@ -214,7 +214,7 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
             onChange={(event) => updateForm("content", event.target.value)}
             disabled={isSaving}
             className="w-full rounded-3xl border border-stone-300 bg-stone-50 px-4 py-4 text-sm leading-7 text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-            placeholder="Start writing. Markdown and publishing come later."
+            placeholder="从这里开始写作。本轮暂不支持富文本和自动保存。"
           />
         </div>
       </div>
@@ -230,14 +230,14 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
                   href={`${ROUTES.AUTHOR_WRITE}?id=${article.id}`}
                   className="inline-flex rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-medium text-emerald-800 transition-colors hover:border-emerald-300"
                 >
-                  Continue editing
+                  继续编辑
                 </Link>
               ) : null}
               <Link
                 href={ROUTES.AUTHOR_ARTICLES}
                 className="inline-flex rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-xs font-medium text-emerald-800 transition-colors hover:border-emerald-300"
               >
-                View My Articles
+                查看我的文章
               </Link>
             </div>
           </div>
@@ -250,7 +250,7 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
           disabled={isSaving}
           className="inline-flex items-center justify-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:border-stone-300 disabled:bg-stone-300"
         >
-          {isSaving ? "Saving..." : isCreateMode ? "Save draft" : "Update draft"}
+          {isSaving ? "正在保存..." : isCreateMode ? "保存草稿" : "更新草稿"}
         </button>
 
         <button
@@ -258,14 +258,14 @@ export function DraftArticleForm({ initialArticle }: DraftArticleFormProps) {
           disabled
           className="inline-flex cursor-not-allowed items-center rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm text-stone-400"
         >
-          Publish from My Articles
+          从“我的文章”发布
         </button>
 
         <Link
           href={ROUTES.AUTHOR_ARTICLES}
           className="inline-flex items-center rounded-full border border-stone-300 px-5 py-2.5 text-sm text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
         >
-          View My Articles
+          查看我的文章
         </Link>
       </div>
     </form>

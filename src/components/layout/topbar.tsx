@@ -30,14 +30,14 @@ export function Topbar({ hasAuthorProfile, isAuthenticated }: TopbarProps) {
               href={ROUTES.HOME}
               className="inline-flex items-center text-lg font-semibold tracking-tight text-stone-950"
             >
-              Maimang Readbox
+              麦芒订阅
             </Link>
             <p className="text-sm text-stone-600">
-              A quiet readbox for subscriptions, saved links, and private traces.
+              订阅、稍后阅读、专题和阅读痕迹都在这里。
             </p>
           </div>
           <div className="hidden rounded-full border border-stone-200 bg-white px-3 py-1 text-xs text-stone-500 md:block">
-            Quiet workspace
+            阅读工作台
           </div>
         </div>
 

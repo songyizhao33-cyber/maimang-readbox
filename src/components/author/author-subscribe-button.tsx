@@ -51,7 +51,7 @@ export function AuthorSubscribeButton({
 
       setIsSubscribed(true);
     } catch {
-      setErrorMessage("Failed to subscribe. Please try again.");
+      setErrorMessage("订阅失败，请稍后重试。");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +75,7 @@ export function AuthorSubscribeButton({
 
       setIsSubscribed(false);
     } catch {
-      setErrorMessage("Failed to unsubscribe. Please try again.");
+      setErrorMessage("取消订阅失败，请稍后重试。");
     } finally {
       setIsSubmitting(false);
     }
@@ -88,9 +88,9 @@ export function AuthorSubscribeButton({
           href={ROUTES.AUTHOR_DASHBOARD}
           className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm text-stone-50 transition hover:bg-stone-800"
         >
-          Manage author profile
+          管理作者资料
         </Link>
-        <p className="text-sm text-stone-500">This is your author profile.</p>
+        <p className="text-sm text-stone-500">这是你的作者资料。</p>
       </div>
     );
   }
@@ -102,9 +102,9 @@ export function AuthorSubscribeButton({
           href={ROUTES.LOGIN}
           className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm text-stone-50 transition hover:bg-stone-800"
         >
-          Sign in to subscribe
+          登录后订阅
         </Link>
-        <p className="text-sm text-stone-500">Login is required before you can subscribe.</p>
+        <p className="text-sm text-stone-500">订阅作者前需要先登录。</p>
       </div>
     );
   }
@@ -118,7 +118,7 @@ export function AuthorSubscribeButton({
             disabled
             className="inline-flex cursor-not-allowed items-center rounded-full border border-stone-200 bg-white px-4 py-2 text-sm text-stone-400"
           >
-            Subscribed
+            已订阅
           </button>
           <button
             type="button"
@@ -126,7 +126,7 @@ export function AuthorSubscribeButton({
             disabled={isSubmitting}
             className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm text-stone-700 transition hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:border-stone-200 disabled:bg-stone-100 disabled:text-stone-400"
           >
-            {isSubmitting ? "Unsubscribing..." : "Unsubscribe"}
+            {isSubmitting ? "正在取消..." : "取消订阅"}
           </button>
         </div>
       ) : (
@@ -136,14 +136,14 @@ export function AuthorSubscribeButton({
           disabled={isSubmitting}
           className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm text-stone-50 transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:border-stone-300 disabled:bg-stone-300"
         >
-          {isSubmitting ? "Subscribing..." : "Subscribe"}
+          {isSubmitting ? "正在订阅..." : "订阅作者"}
         </button>
       )}
 
       {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
       {isSubscribed ? (
         <p className="text-sm text-stone-500">
-          New published articles from this author can enter your inbox.
+          这位作者新发布的文章会进入你的收件箱。
         </p>
       ) : null}
     </div>

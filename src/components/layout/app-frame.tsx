@@ -19,7 +19,7 @@ export function AppFrame({
 }: AppFrameProps) {
   const pathname = usePathname();
 
-  if (pathname === "/") {
+  if (pathname === "/" && !isAuthenticated) {
     return <>{children}</>;
   }
 

@@ -12,7 +12,7 @@ export interface AuthorArticleListItem {
 
 function formatPublishedAt(value: string | null) {
   if (!value) {
-    return "Published";
+    return "已发布";
   }
 
   try {
@@ -34,7 +34,7 @@ export function AuthorArticlesList({
   if (articles.length === 0) {
     return (
       <div className="rounded-[2rem] border border-dashed border-stone-300 bg-white px-6 py-10 text-center text-sm text-stone-600">
-        This author has not published any articles yet.
+        这位作者还没有发布文章。
       </div>
     );
   }
@@ -70,7 +70,7 @@ export function AuthorArticlesList({
               href={ROUTES.ARTICLE(article.id)}
               className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              Read article
+              阅读文章
             </Link>
           </div>
         </article>

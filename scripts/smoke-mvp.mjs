@@ -1794,11 +1794,11 @@ async function run() {
   assertEqual(otherReadingTraces.items.length, 0, "otherUser reading traces isolated");
 
   const inboxHtml = await getHtml(readerSession, "/inbox");
-  assertIncludes(inboxHtml, "Quiet reading inbox", "reader inbox page");
+  assertIncludes(inboxHtml, "收件箱", "reader inbox page");
   assertIncludes(inboxHtml, draftArticleC.title, "reader inbox page item visible");
 
   const laterHtml = await getHtml(readerSession, "/later");
-  assertIncludes(laterHtml, "Quiet later shelf", "reader later page");
+  assertIncludes(laterHtml, "保存外部内容", "reader later page");
   assertIncludes(
     laterHtml,
     `Reader external item updated ${timestamp}`,
@@ -1806,7 +1806,7 @@ async function run() {
   );
 
   const collectionsHtml = await getHtml(readerSession, "/collections");
-  assertIncludes(collectionsHtml, "Quiet collection shelves", "reader collections page");
+  assertIncludes(collectionsHtml, "专题", "reader collections page");
   assertIncludes(
     collectionsHtml,
     `T50 collection updated ${timestamp}`,
@@ -1859,7 +1859,7 @@ async function run() {
   const readingTracesHtml = await getHtml(readerSession, "/reading-traces");
   assertIncludes(
     readingTracesHtml,
-    "Private notes and reflections in one place",
+    "笔记和读后感都在这里",
     "reader reading traces page",
   );
   assertIncludes(
@@ -1876,7 +1876,7 @@ async function run() {
   const anonymousReadingTracesHtml = await getHtml(anonymousSession, "/reading-traces");
   assertIncludes(
     anonymousReadingTracesHtml,
-    "Sign in to review your private reading traces",
+    "登录后查看阅读痕迹",
     "anonymous reading traces page",
   );
   assertNotIncludes(

@@ -125,18 +125,18 @@ export default async function AuthorDetailPage({
           <div className="min-w-0 flex-1 space-y-4">
             <div className="space-y-2">
               <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-                Author profile
+                作者主页
               </div>
               <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
                 {author.penName}
               </h1>
               <p className="text-sm leading-7 text-stone-600">
-                Public since {formatCreatedAt(author.createdAt)}
+                公开于 {formatCreatedAt(author.createdAt)}
               </p>
             </div>
 
             <p className="max-w-3xl text-sm leading-8 text-stone-700 sm:text-base">
-              {author.bio || "This author has not added a public bio yet."}
+              {author.bio || "这位作者还没有添加公开简介。"}
             </p>
 
             <div className="flex flex-wrap items-start gap-3">
@@ -147,7 +147,7 @@ export default async function AuthorDetailPage({
                   rel="noreferrer"
                   className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
                 >
-                  Visit homepage
+                  访问外部主页
                 </a>
               ) : null}
 
@@ -165,17 +165,16 @@ export default async function AuthorDetailPage({
       <div className="rounded-[2rem] border border-stone-200 bg-stone-50 p-8">
         <div className="space-y-3">
           <h2 className="text-xl font-semibold tracking-tight text-stone-950">
-            Published articles
+            已发布文章
           </h2>
           <p className="max-w-2xl text-sm leading-7 text-stone-600">
-            Only articles with published status appear here. Unpublished work remains inside the
-            author workspace.
+            这里仅展示已发布文章。未发布内容仍保留在作者工作区。
           </p>
         </div>
         <div className="mt-6">
           {articleError ? (
             <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-              Failed to load published articles. Please refresh and try again.
+              已发布文章加载失败，请刷新后重试。
             </div>
           ) : (
             <AuthorArticlesList articles={publishedArticles} />

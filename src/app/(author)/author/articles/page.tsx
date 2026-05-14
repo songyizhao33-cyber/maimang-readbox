@@ -80,23 +80,23 @@ export default async function AuthorArticlesPage() {
         <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
           <div className="space-y-3">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Articles
+              文章
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              My articles
+              我的文章
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Sign in first to view your own article drafts.
+              登录后可以查看自己的草稿和已发布文章。
             </p>
           </div>
 
           <div className="mt-8 space-y-4 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-5 text-sm text-amber-900">
-            <p>You are not signed in.</p>
+            <p>你还没有登录。</p>
             <Link
               href={ROUTES.LOGIN}
               className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              Go to login
+              去登录
             </Link>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default async function AuthorArticlesPage() {
     return (
       <section className="space-y-6">
         <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-          Failed to load your author profile. Please refresh and try again.
+          作者资料加载失败，请刷新后重试。
         </div>
       </section>
     );
@@ -126,24 +126,23 @@ export default async function AuthorArticlesPage() {
         <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
           <div className="space-y-3">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Articles
+              文章
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              My articles
+              我的文章
             </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Create your author profile first before you start writing drafts. Your author profile
-            is the public identity attached to published articles.
+            请先创建作者资料，再开始写草稿。作者资料会作为公开文章的作者身份展示。
           </p>
           </div>
 
           <div className="mt-8 space-y-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-700">
-            <p>You do not have an author profile yet.</p>
+            <p>你还没有作者资料。</p>
             <Link
               href={ROUTES.AUTHOR_DASHBOARD}
               className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              Go to author dashboard
+              去创建作者资料
             </Link>
           </div>
         </div>
@@ -167,14 +166,13 @@ export default async function AuthorArticlesPage() {
       <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
         <div className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Articles
+            文章
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            My articles
+            我的文章
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Manage your own drafts and published articles here. Drafts are private; published
-            articles have public reading pages and can enter subscriber inboxes.
+            在这里管理草稿和已发布文章。草稿保持私密；已发布文章会生成公开阅读页，并进入订阅读者的收件箱。
           </p>
         </div>
 
@@ -183,29 +181,29 @@ export default async function AuthorArticlesPage() {
             href={ROUTES.AUTHOR_WRITE}
             className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition hover:bg-stone-800"
           >
-            New draft
+            新草稿
           </Link>
           <div className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
-            Drafts: {articleCounts.drafts}
+            草稿：{articleCounts.drafts}
           </div>
           <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-            Published: {articleCounts.published}
+            已发布：{articleCounts.published}
           </div>
         </div>
       </div>
 
       {articleError ? (
         <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-          Failed to load your articles. Please refresh and try again.
+          文章列表加载失败，请刷新后重试。
         </div>
       ) : articles.length === 0 ? (
         <div className="space-y-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-600">
-          <p>You do not have any articles yet.</p>
+          <p>你还没有文章。</p>
           <Link
             href={ROUTES.AUTHOR_WRITE}
             className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
           >
-            Start a draft
+            写一篇草稿
           </Link>
         </div>
       ) : (

@@ -41,71 +41,76 @@ export interface NavSection {
 
 export const DISCOVERY_NAV_ITEMS: NavItem[] = [
   {
-    label: "Authors",
+    label: "作者",
     href: ROUTES.AUTHORS,
-    hint: "Browse public author profiles.",
+    hint: "浏览可订阅的作者。",
   },
 ];
 
 export const READER_WORKSPACE_NAV_ITEMS: NavItem[] = [
   {
-    label: "Inbox",
+    label: "工作台",
+    href: ROUTES.HOME,
+    hint: "回到今天的阅读入口。",
+  },
+  {
+    label: "收件箱",
     href: ROUTES.INBOX,
-    hint: "Published subscription articles.",
+    hint: "订阅作者的新文章。",
   },
   {
-    label: "Later",
+    label: "稍后阅读",
     href: ROUTES.LATER,
-    hint: "Your saved external reading items.",
+    hint: "手动保存外部内容。",
   },
   {
-    label: "Collections",
+    label: "专题",
     href: ROUTES.COLLECTIONS,
-    hint: "Small shelves for stable themes.",
+    hint: "整理长期阅读主题。",
   },
   {
-    label: "Reading Traces",
+    label: "阅读痕迹",
     href: ROUTES.READING_TRACES,
-    hint: "Your notes and reflections in one view.",
+    hint: "笔记和读后感汇总。",
   },
 ];
 
 export const AUTHOR_WORKSPACE_NAV_ITEMS: NavItem[] = [
   {
-    label: "Author Dashboard",
+    label: "作者工作区",
     href: ROUTES.AUTHOR_DASHBOARD,
-    hint: "Manage your public author card.",
+    hint: "管理作者资料和写作入口。",
   },
   {
-    label: "Write",
+    label: "写作",
     href: ROUTES.AUTHOR_WRITE,
-    hint: "Draft and publish your next article.",
+    hint: "写一篇新草稿。",
   },
   {
-    label: "My Articles",
+    label: "我的文章",
     href: ROUTES.AUTHOR_ARTICLES,
-    hint: "Review your drafts and published work.",
+    hint: "查看草稿和已发布文章。",
   },
 ];
 
 export const ACCOUNT_NAV_ITEMS: NavItem[] = [
   {
-    label: "Settings",
+    label: "设置",
     href: ROUTES.SETTINGS,
-    hint: "Profile details and account basics.",
+    hint: "个人资料和账号设置。",
   },
 ];
 
 export const AUTH_ACTION_NAV_ITEMS: NavItem[] = [
   {
-    label: "Login",
+    label: "登录",
     href: ROUTES.LOGIN,
-    hint: "Sign in to your private reader workspace.",
+    hint: "进入你的阅读空间。",
   },
   {
-    label: "Register",
+    label: "注册",
     href: ROUTES.REGISTER,
-    hint: "Create a new account.",
+    hint: "创建新账号。",
   },
 ];
 
@@ -138,22 +143,22 @@ export function getSecondaryNavSections({
 }): NavSection[] {
   if (!isAuthenticated) {
     return [
-      {
-        title: "Account",
-        items: AUTH_ACTION_NAV_ITEMS,
-      },
-    ];
+    {
+      title: "账号",
+      items: AUTH_ACTION_NAV_ITEMS,
+    },
+  ];
   }
 
   return [
     {
-      title: "Writing",
+      title: "写作",
       items: hasAuthorProfile
         ? AUTHOR_WORKSPACE_NAV_ITEMS
         : [AUTHOR_WORKSPACE_NAV_ITEMS[0]],
     },
     {
-      title: "Account",
+      title: "账号",
       items: ACCOUNT_NAV_ITEMS,
     },
   ];

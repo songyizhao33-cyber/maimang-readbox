@@ -100,7 +100,7 @@ export function AuthorProfileForm({ initialAuthorProfile }: AuthorProfileFormPro
           (method === "POST" ? "Author profile created." : "Author profile saved."),
       );
     } catch {
-      setErrorMessage("Failed to save author profile. Please try again.");
+      setErrorMessage("作者资料保存失败，请稍后重试。");
     } finally {
       setIsSaving(false);
     }
@@ -112,20 +112,18 @@ export function AuthorProfileForm({ initialAuthorProfile }: AuthorProfileFormPro
         {authorProfile ? (
           <div className="space-y-2">
             <p>
-              Current status:{" "}
+              当前状态：{" "}
               <span className="font-medium text-stone-900">
-                {authorProfile.isActive ? "active" : "inactive"}
+                {authorProfile.isActive ? "已启用" : "未启用"}
               </span>
             </p>
             <p>
-              This public card is what readers see on your author page. Internal owner fields stay
-              hidden.
+              读者会在作者主页看到这张公开卡片，内部账号信息不会展示。
             </p>
           </div>
         ) : (
           <p>
-            Create your author profile here. This only prepares your pen name and public author
-            card. After creation you can write drafts, publish articles, and let readers subscribe.
+            在这里创建作者资料。创建后可以写草稿、发布文章，并让读者订阅。
           </p>
         )}
       </div>
@@ -133,7 +131,7 @@ export function AuthorProfileForm({ initialAuthorProfile }: AuthorProfileFormPro
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
           <label htmlFor="penName" className="text-sm font-medium text-stone-700">
-            Pen name
+            笔名
           </label>
           <input
             id="penName"
@@ -141,14 +139,14 @@ export function AuthorProfileForm({ initialAuthorProfile }: AuthorProfileFormPro
             value={form.penName}
             onChange={(event) => updateForm("penName", event.target.value)}
             className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-            placeholder="Your public pen name"
+            placeholder="你的公开笔名"
             disabled={isSaving}
           />
         </div>
 
         <div className="space-y-2">
           <label htmlFor="bio" className="text-sm font-medium text-stone-700">
-            Bio
+            简介
           </label>
           <textarea
             id="bio"
@@ -156,14 +154,14 @@ export function AuthorProfileForm({ initialAuthorProfile }: AuthorProfileFormPro
             value={form.bio}
             onChange={(event) => updateForm("bio", event.target.value)}
             className="w-full rounded-2xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:bg-white"
-            placeholder="Short introduction for readers"
+            placeholder="给读者看的简短介绍"
             disabled={isSaving}
           />
         </div>
 
         <div className="space-y-2">
           <label htmlFor="avatarUrl" className="text-sm font-medium text-stone-700">
-            Avatar URL
+            头像 URL
           </label>
           <input
             id="avatarUrl"
@@ -178,7 +176,7 @@ export function AuthorProfileForm({ initialAuthorProfile }: AuthorProfileFormPro
 
         <div className="space-y-2">
           <label htmlFor="homepageUrl" className="text-sm font-medium text-stone-700">
-            Homepage URL
+            个人主页 URL
           </label>
           <input
             id="homepageUrl"
@@ -203,11 +201,11 @@ export function AuthorProfileForm({ initialAuthorProfile }: AuthorProfileFormPro
         >
           {isSaving
             ? isCreateMode
-              ? "Creating..."
-              : "Saving..."
+              ? "正在创建..."
+              : "正在保存..."
             : isCreateMode
-              ? "Create author profile"
-              : "Save author profile"}
+              ? "创建作者资料"
+              : "保存作者资料"}
         </button>
       </form>
     </div>

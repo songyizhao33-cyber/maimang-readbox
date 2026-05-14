@@ -41,7 +41,7 @@ async function listExternalItems(userId: string) {
     .limit(50);
 
   if (error) {
-    return { error: "Failed to load external items." };
+    return { error: "稍后阅读加载失败，请刷新后重试。" };
   }
 
   return {
@@ -65,7 +65,7 @@ async function listCollections(userId: string) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return { error: "Failed to load collections." };
+    return { error: "专题加载失败，请刷新后重试。" };
   }
 
   return {
@@ -86,20 +86,19 @@ export default async function LaterPage() {
         <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
           <div className="space-y-4">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Later
+              稍后阅读
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              Sign in to save external reading
+              登录后保存外部内容
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Your saved links and excerpts are private to your account. Sign in first before you
-              collect outside reading for later.
+              你手动保存的链接和摘录只属于你的账号。登录后可以把外部阅读放到稍后阅读。
             </p>
             <Link
               href={ROUTES.LOGIN}
               className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
             >
-              Go to login
+              去登录
             </Link>
           </div>
         </div>
@@ -122,16 +121,22 @@ export default async function LaterPage() {
       <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
         <div className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Later
+            稍后阅读
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Quiet later shelf
+            保存外部内容
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Save your own link metadata, short excerpts, and reading reminders here. This shelf
-            does not import webpages automatically, bypass paywalls, or store third-party full text
-            for you.
+            你可以手动保存外部链接、标题和摘录。麦芒订阅不会自动抓取或公开第三方全文。
           </p>
+          <div className="pt-2">
+            <Link
+              href={ROUTES.HOME}
+              className="inline-flex rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-stone-400 hover:bg-stone-50"
+            >
+              回到工作台
+            </Link>
+          </div>
         </div>
       </div>
 

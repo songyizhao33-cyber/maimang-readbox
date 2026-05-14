@@ -7,12 +7,12 @@ interface InboxFilterTabsProps {
 export type InboxFilter = "active" | "unread" | "reading" | "starred" | "archived" | "all";
 
 const FILTER_TABS: Array<{ filter: InboxFilter; label: string; href: string }> = [
-  { filter: "active", label: "Inbox", href: "/inbox" },
-  { filter: "unread", label: "Unread", href: "/inbox?filter=unread" },
-  { filter: "reading", label: "Reading", href: "/inbox?filter=reading" },
-  { filter: "starred", label: "Starred", href: "/inbox?filter=starred" },
-  { filter: "archived", label: "Archived", href: "/inbox?filter=archived" },
-  { filter: "all", label: "All", href: "/inbox?filter=all" },
+  { filter: "active", label: "收件箱", href: "/inbox" },
+  { filter: "unread", label: "未读", href: "/inbox?filter=unread" },
+  { filter: "reading", label: "阅读中", href: "/inbox?filter=reading" },
+  { filter: "starred", label: "已星标", href: "/inbox?filter=starred" },
+  { filter: "archived", label: "已归档", href: "/inbox?filter=archived" },
+  { filter: "all", label: "全部", href: "/inbox?filter=all" },
 ];
 
 export function InboxFilterTabs({ currentFilter }: InboxFilterTabsProps) {

@@ -68,18 +68,18 @@ function formatDate(value: string) {
 
 function formatContentType(contentType: ContentType) {
   if (contentType === "text") {
-    return "Text";
+    return "文本";
   }
 
   if (contentType === "image") {
-    return "Image";
+    return "图片";
   }
 
   if (contentType === "pdf") {
     return "PDF";
   }
 
-  return "Link";
+  return "链接";
 }
 
 export function ExternalItemCard({
@@ -108,13 +108,13 @@ export function ExternalItemCard({
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.16em] text-stone-400">
           <span>{formatContentType(item.contentType)}</span>
-          <span>Saved {formatDate(item.createdAt)}</span>
+          <span>保存于 {formatDate(item.createdAt)}</span>
         </div>
 
         {isEditing ? (
           <div className="space-y-4">
             <label className="space-y-2">
-              <span className="text-sm font-medium text-stone-700">Title</span>
+              <span className="text-sm font-medium text-stone-700">标题</span>
               <input
                 type="text"
                 value={item.title}
@@ -124,7 +124,7 @@ export function ExternalItemCard({
               />
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-medium text-stone-700">Source URL</span>
+              <span className="text-sm font-medium text-stone-700">原文链接</span>
               <input
                 type="url"
                 value={item.sourceUrl ?? ""}
@@ -134,7 +134,7 @@ export function ExternalItemCard({
             </label>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2">
-                <span className="text-sm font-medium text-stone-700">Source platform</span>
+                <span className="text-sm font-medium text-stone-700">来源平台</span>
                 <input
                   type="text"
                   value={item.sourcePlatform ?? ""}
@@ -144,7 +144,7 @@ export function ExternalItemCard({
                 />
               </label>
               <label className="space-y-2">
-                <span className="text-sm font-medium text-stone-700">Author name</span>
+                <span className="text-sm font-medium text-stone-700">作者 / 来源名</span>
                 <input
                   type="text"
                   value={item.authorName ?? ""}
@@ -155,7 +155,7 @@ export function ExternalItemCard({
               </label>
             </div>
             <label className="space-y-2">
-              <span className="text-sm font-medium text-stone-700">Excerpt</span>
+              <span className="text-sm font-medium text-stone-700">摘录 / 备注</span>
               <textarea
                 value={item.excerpt ?? ""}
                 onChange={(event) => onFieldChange?.("excerpt", event.target.value)}
@@ -185,33 +185,33 @@ export function ExternalItemCard({
               rel="noreferrer"
               className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
             >
-              Open source
+              打开原文
             </Link>
           ) : null}
           {!isEditing && !isConfirmingDelete ? (
             <div className="rounded-3xl border border-stone-200 bg-stone-50 p-4">
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <div className="text-sm font-medium text-stone-900">Add to collection</div>
+                  <div className="text-sm font-medium text-stone-900">加入专题</div>
                   <p className="text-xs leading-6 text-stone-500">
-                    Keep this saved link inside one of your private reading shelves.
+                    把这条外部内容放进一个私人阅读专题。
                   </p>
                 </div>
 
                 {collectionOptions.length === 0 ? (
                   <div className="flex flex-wrap items-center gap-3 text-sm text-stone-600">
-                    <span>Create a collection first.</span>
+                    <span>请先创建专题。</span>
                     <Link
                       href={ROUTES.COLLECTIONS}
                       className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-white"
                     >
-                      Go to collections
+                      去创建专题
                     </Link>
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-3">
                     <label className="sr-only" htmlFor={`collection-${item.id}`}>
-                      Choose collection
+                      选择专题
                     </label>
                     <select
                       id={`collection-${item.id}`}
@@ -231,7 +231,7 @@ export function ExternalItemCard({
                       disabled={isAddingToCollection || !onAddToCollection || !selectedCollectionId}
                       className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {isAddingToCollection ? "Adding..." : "Add to collection"}
+                      {isAddingToCollection ? "正在加入..." : "加入专题"}
                     </button>
                   </div>
                 )}
@@ -259,7 +259,7 @@ export function ExternalItemCard({
                   disabled={isPending || !onSaveEdit}
                   className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isPending ? "Saving..." : "Save edits"}
+                  {isPending ? "正在保存..." : "保存修改"}
                 </button>
                 <button
                   type="button"
@@ -267,7 +267,7 @@ export function ExternalItemCard({
                   disabled={isPending || !onCancelEdit}
                   className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Cancel
+                  取消
                 </button>
               </>
             ) : isConfirmingDelete ? (
@@ -278,7 +278,7 @@ export function ExternalItemCard({
                   disabled={isDeleting || !onConfirmDelete}
                   className="inline-flex items-center rounded-full border border-red-700 bg-red-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isDeleting ? "Deleting..." : "Delete item"}
+                  {isDeleting ? "正在删除..." : "删除内容"}
                 </button>
                 <button
                   type="button"
@@ -286,7 +286,7 @@ export function ExternalItemCard({
                   disabled={isDeleting || !onCancelDelete}
                   className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Cancel
+                  取消
                 </button>
               </>
             ) : (
@@ -295,7 +295,7 @@ export function ExternalItemCard({
                   href={ROUTES.EXTERNAL_ITEM_DETAIL(item.id)}
                   className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
                 >
-                  View details
+                  查看详情
                 </Link>
                 <button
                   type="button"
@@ -303,7 +303,7 @@ export function ExternalItemCard({
                   disabled={!onStartEdit}
                   className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Edit
+                  编辑
                 </button>
                 <button
                   type="button"
@@ -311,14 +311,14 @@ export function ExternalItemCard({
                   disabled={!onRequestDelete}
                   className="inline-flex items-center rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Delete
+                  删除
                 </button>
               </>
             )}
           </div>
           {isConfirmingDelete ? (
             <p className="text-sm leading-6 text-stone-600">
-              Delete this saved external item? This cannot be undone.
+              确定删除这条外部内容吗？此操作不可撤销。
             </p>
           ) : null}
           {errorMessage ? (

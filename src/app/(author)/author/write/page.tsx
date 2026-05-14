@@ -61,23 +61,23 @@ export default async function AuthorWritePage({
         <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
           <div className="space-y-3">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Writing
+              写作
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              Write a draft
+              写草稿
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Sign in first to save article drafts.
+              登录后可以保存文章草稿。
             </p>
           </div>
 
           <div className="mt-8 space-y-4 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-5 text-sm text-amber-900">
-            <p>You are not signed in.</p>
+            <p>你还没有登录。</p>
             <Link
               href={ROUTES.LOGIN}
               className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              Go to login
+              去登录
             </Link>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default async function AuthorWritePage({
     return (
       <section className="space-y-6">
         <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-          Failed to load your author profile. Please refresh and try again.
+            作者资料加载失败，请刷新后重试。
         </div>
       </section>
     );
@@ -107,24 +107,23 @@ export default async function AuthorWritePage({
         <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
           <div className="space-y-3">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Writing
+              写作
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              Write a draft
+              写草稿
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Create your author profile first. Draft writing opens only after you have a public
-              author identity readers can understand and subscribe to.
+              请先创建作者资料。创建后，你就可以写草稿并发布文章。
             </p>
           </div>
 
           <div className="mt-8 space-y-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-700">
-            <p>You do not have an author profile yet.</p>
+            <p>你还没有作者资料。</p>
             <Link
               href={ROUTES.AUTHOR_DASHBOARD}
               className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              Go to author dashboard
+              去创建作者资料
             </Link>
           </div>
         </div>
@@ -146,7 +145,7 @@ export default async function AuthorWritePage({
       return (
         <section className="space-y-6">
           <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-            Failed to load the draft. Please refresh and try again.
+            草稿加载失败，请刷新后重试。
           </div>
         </section>
       );
@@ -164,47 +163,46 @@ export default async function AuthorWritePage({
       <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
         <div className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Writing
+            写作
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            {article ? "Edit draft" : "New draft"}
+            {article ? "编辑草稿" : "新草稿"}
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Save or refine plain text drafts here. Drafts remain private until you publish from My
-            Articles; published articles become public and can be delivered to subscribed readers.
+            在这里保存和修改纯文本草稿。草稿默认私密，发布后会生成公开文章页，并进入订阅读者的收件箱。
           </p>
         </div>
 
         <div className="mt-6 grid gap-3 text-sm text-stone-600 sm:grid-cols-3">
           <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4">
-            <div className="font-medium text-stone-900">1. Save draft</div>
-            <p className="mt-2 leading-7">Write in the simple MVP text form. No autosave.</p>
+            <div className="font-medium text-stone-900">1. 保存草稿</div>
+            <p className="mt-2 leading-7">使用当前的简单文本表单写作，本轮不做自动保存。</p>
           </div>
           <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4">
-            <div className="font-medium text-stone-900">2. Review list</div>
-            <p className="mt-2 leading-7">Use My Articles to distinguish drafts and published work.</p>
+            <div className="font-medium text-stone-900">2. 回到我的文章</div>
+            <p className="mt-2 leading-7">在“我的文章”里区分草稿和已发布内容。</p>
           </div>
           <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4">
-            <div className="font-medium text-stone-900">3. Publish deliberately</div>
-            <p className="mt-2 leading-7">Publishing locks editing and opens the public article page.</p>
+            <div className="font-medium text-stone-900">3. 手动发布</div>
+            <p className="mt-2 leading-7">发布后文章会公开，且当前 MVP 不再允许编辑。</p>
           </div>
         </div>
 
         {article?.status && article.status !== "draft" ? (
           <div className="mt-8 space-y-4 rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-700">
-            <p>This article has already been published and can no longer be edited as a draft.</p>
+            <p>这篇文章已经发布，不能再作为草稿编辑。</p>
             <div className="flex flex-wrap gap-3">
               <Link
                 href={ROUTES.ARTICLE(article.id)}
                 className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
               >
-                View public article
+                查看公开文章
               </Link>
               <Link
                 href={ROUTES.AUTHOR_ARTICLES}
                 className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
               >
-                Back to my articles
+                回到我的文章
               </Link>
             </div>
           </div>

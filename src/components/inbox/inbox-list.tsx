@@ -20,42 +20,42 @@ interface InboxItemMutationData {
 function emptyStateCopy(filter: InboxFilter) {
   if (filter === "unread") {
     return {
-      title: "No unread articles",
-      description: "New subscription articles appear here before you mark them as reading.",
+      title: "没有未读文章",
+      description: "订阅作者发布的新文章会先出现在这里。",
     };
   }
 
   if (filter === "reading") {
     return {
-      title: "No articles marked as reading",
-      description: "Mark an inbox article as Reading when you want to keep it active.",
+      title: "没有阅读中的文章",
+      description: "当你想持续回到某篇文章时，可以把它标为阅读中。",
     };
   }
 
   if (filter === "starred") {
     return {
-      title: "No starred articles",
-      description: "Star articles you want to return to without changing their inbox status.",
+      title: "没有已星标文章",
+      description: "给值得回看的文章加星标，方便之后再次打开。",
     };
   }
 
   if (filter === "archived") {
     return {
-      title: "No archived articles",
-      description: "Archived articles leave the active inbox but remain available here.",
+      title: "没有已归档文章",
+      description: "归档文章会离开当前收件箱，但仍保留在这里。",
     };
   }
 
   if (filter === "all") {
     return {
-      title: "No subscription articles yet",
-      description: "Subscribe to authors, then their published platform articles will appear here.",
+      title: "收件箱还没有文章",
+      description: "先去浏览作者并订阅。作者发布新文章后，会像邮件一样进入这里。",
     };
   }
 
   return {
-    title: "No active inbox articles",
-    description: "Subscribe to authors, then new published work will appear here chronologically.",
+    title: "收件箱还没有文章",
+    description: "先去浏览作者并订阅。作者发布新文章后，会像邮件一样进入这里。",
   };
 }
 
@@ -179,13 +179,13 @@ export function InboxList({
               href={ROUTES.AUTHORS}
               className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
             >
-              Browse authors
+              浏览作者
             </Link>
             <Link
               href={ROUTES.LATER}
               className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400"
             >
-              Save something for later
+              保存外部内容
             </Link>
           </div>
         </div>

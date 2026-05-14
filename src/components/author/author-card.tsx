@@ -64,14 +64,13 @@ export function AuthorCard({
               </Link>
             </h2>
             <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
-              {author.publishedArticleCount} published article
-              {author.publishedArticleCount === 1 ? "" : "s"} - Joined{" "}
+              {author.publishedArticleCount} 篇已发布文章 · 加入于{" "}
               {formatCreatedAt(author.createdAt)}
             </p>
           </div>
 
           <p className="text-sm leading-7 text-stone-600">
-            {author.bio || "This author has not added a public bio yet."}
+            {author.bio || "这位作者还没有添加公开简介。"}
           </p>
 
           <div className="flex flex-wrap gap-3 text-sm">
@@ -79,7 +78,7 @@ export function AuthorCard({
               href={ROUTES.AUTHOR_DETAIL(author.id)}
               className="inline-flex items-center rounded-full border border-stone-300 px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              View profile
+              查看主页
             </Link>
             {author.homepageUrl ? (
               <a
@@ -88,7 +87,7 @@ export function AuthorCard({
                 rel="noreferrer"
                 className="inline-flex items-center rounded-full border border-stone-200 px-4 py-2 text-stone-500 transition-colors hover:border-stone-300 hover:bg-stone-50 hover:text-stone-700"
               >
-                Visit homepage
+                访问外部主页
               </a>
             ) : null}
           </div>

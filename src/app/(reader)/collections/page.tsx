@@ -30,7 +30,7 @@ async function listCollections(userId: string) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return { error: "Failed to load collections." };
+    return { error: "专题加载失败，请刷新后重试。" };
   }
 
   return {
@@ -51,20 +51,19 @@ export default async function CollectionsPage() {
         <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
           <div className="space-y-4">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Collections
+              专题
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              Sign in to organize your collections
+              登录后整理专题
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Collections are private shelves for your own reading structure. Sign in before you
-              create and review them.
+              专题是你自己的私人阅读书架。登录后可以创建、整理和回看。
             </p>
             <Link
               href={ROUTES.LOGIN}
               className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
             >
-              Go to login
+              去登录
             </Link>
           </div>
         </div>
@@ -82,15 +81,22 @@ export default async function CollectionsPage() {
       <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
         <div className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Collections
+            专题
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Quiet collection shelves
+            专题
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Create focused private shelves for long-term reading themes. Add saved external items
-            from Later, and keep article or source groupings narrow enough to remain useful.
+            为长期阅读主题创建小而稳定的私人书架。你可以从稍后阅读把外部内容加入专题。
           </p>
+          <div className="pt-2">
+            <Link
+              href={ROUTES.HOME}
+              className="inline-flex rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-stone-400 hover:bg-stone-50"
+            >
+              回到工作台
+            </Link>
+          </div>
         </div>
       </div>
 

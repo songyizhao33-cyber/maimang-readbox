@@ -13,6 +13,7 @@ interface RegisterResponseData {
   user: {
     id: string;
   };
+  authState: "signed_in" | "email_confirmation_required" | "submitted";
 }
 
 function validationError(message: string, status = 400) {
@@ -96,14 +97,21 @@ export async function POST(request: Request) {
     );
   }
 
+  const authState: RegisterResponseData["authState"] = data.session
+    ? "signed_in"
+    : "email_confirmation_required";
+
   return NextResponse.json<ApiResponse<RegisterResponseData>>(
     {
       data: {
         user: {
           id: data.user.id,
         },
+        authState,
       },
-      message: "注册成功。若项目开启邮箱确认，请先完成验证后再登录。",
+      message: data.session
+        ? "注册成功，已为你登录。"
+        : "注册成功。请查收邮箱确认邮件，完成确认后再登录。",
     },
     { status: 201 },
   );

@@ -50,18 +50,18 @@ function formatDate(value: string) {
 
 function formatStatus(status: InboxStatus) {
   if (status === "unread") {
-    return "Unread";
+    return "未读";
   }
 
   if (status === "read") {
-    return "Read";
+    return "已读";
   }
 
   if (status === "reading") {
-    return "Reading";
+    return "阅读中";
   }
 
-  return "Archived";
+  return "已归档";
 }
 
 export function InboxItemCard({
@@ -72,8 +72,8 @@ export function InboxItemCard({
   onToggleStar,
   onArchive,
 }: InboxItemCardProps) {
-  const readActionLabel = item.status === "unread" ? "Mark read" : "Mark unread";
-  const starActionLabel = item.isStarred ? "Unstar" : "Star";
+  const readActionLabel = item.status === "unread" ? "标为阅读中" : "标为未读";
+  const starActionLabel = item.isStarred ? "取消星标" : "加星标";
 
   return (
     <article className="rounded-[1.75rem] border border-stone-200 bg-white p-6 shadow-[0_18px_50px_-34px_rgba(28,25,23,0.28)] transition-colors hover:border-stone-300">
@@ -81,8 +81,8 @@ export function InboxItemCard({
         <div className="min-w-0 space-y-4">
           <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.16em] text-stone-400">
             <span>{formatStatus(item.status)}</span>
-            {item.isStarred ? <span>Starred</span> : null}
-            <span>Received {formatDate(item.receivedAt)}</span>
+            {item.isStarred ? <span>已星标</span> : null}
+            <span>收到于 {formatDate(item.receivedAt)}</span>
           </div>
 
           <div className="space-y-2">
@@ -104,7 +104,7 @@ export function InboxItemCard({
             href={ROUTES.ARTICLE(item.articleId)}
             className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
           >
-            Read article
+            阅读文章
           </Link>
           <div className="flex flex-wrap justify-start gap-2 sm:justify-end">
             <button
@@ -130,7 +130,7 @@ export function InboxItemCard({
                 disabled={isPending}
                 className="inline-flex items-center rounded-full border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Archive
+                归档
               </button>
             ) : null}
           </div>

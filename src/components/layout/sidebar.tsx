@@ -23,7 +23,7 @@ export function Sidebar({ hasAuthorProfile, isAuthenticated }: SidebarProps) {
       <div className="sticky top-0 flex h-[calc(100vh-101px)] flex-col gap-8 overflow-y-auto px-5 py-6">
         <section className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Navigation
+            导航
           </div>
           <div className="space-y-3">
             {primaryItems.map((item) => (
@@ -58,17 +58,16 @@ export function Sidebar({ hasAuthorProfile, isAuthenticated }: SidebarProps) {
         {isAuthenticated ? (
           <section className="space-y-3">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Session
+              会话
             </div>
             <LogoutButton />
           </section>
         ) : null}
 
         <section className="mt-auto rounded-3xl border border-stone-200 bg-stone-50 p-5">
-          <div className="text-sm font-medium text-stone-900">Quiet reading</div>
+          <div className="text-sm font-medium text-stone-900">安静阅读</div>
           <p className="mt-2 text-sm leading-6 text-stone-600">
-            No ranking loops, no trend chasing, no social pressure. Enter when you
-            want to read and return to what mattered.
+            不追热榜，不做推荐流。打开工作台，直接回到你真正关心的内容。
           </p>
         </section>
       </div>

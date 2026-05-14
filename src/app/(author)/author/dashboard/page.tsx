@@ -76,23 +76,23 @@ export default async function AuthorDashboardPage() {
         <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
           <div className="space-y-3">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Author
+              作者
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              Author Dashboard
+              作者工作区
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Sign in first to create or edit your own author profile.
+              登录后可以创建或编辑自己的作者资料。
             </p>
           </div>
 
           <div className="mt-8 space-y-4 rounded-3xl border border-amber-200 bg-amber-50 px-5 py-5 text-sm text-amber-900">
-            <p>You are not signed in.</p>
+            <p>你还没有登录。</p>
             <Link
               href={ROUTES.LOGIN}
               className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
             >
-              Go to login
+              去登录
             </Link>
           </div>
         </div>
@@ -119,21 +119,19 @@ export default async function AuthorDashboardPage() {
       <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
         <div className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Author
+            作者
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Author Dashboard
+            作者工作区
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Connect your reader account to a public author identity. From here you can create or
-            edit your author card, write drafts, review your articles, and open your public author
-            page.
+            创建作者资料后，你可以写草稿、查看我的文章、发布文章，并打开公开作者主页。
           </p>
         </div>
 
         {authorProfileError ? (
           <div className="mt-8 rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-            Failed to load your author profile. Please refresh and try again.
+            作者资料加载失败，请刷新后重试。
           </div>
         ) : (
           <div className="mt-8 space-y-6">
@@ -142,17 +140,16 @@ export default async function AuthorDashboardPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <p className="font-medium text-stone-900">
-                      Your author profile is active.
+                      你的作者资料已创建。
                     </p>
                     <p>
-                      Readers can discover this public card, subscribe, and receive your newly
-                      published articles in their inbox.
+                      读者可以看到这张公开作者卡片，订阅后接收你新发布的文章。
                     </p>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl border border-stone-200 bg-white px-4 py-3">
                       <div className="text-xs uppercase tracking-[0.16em] text-stone-400">
-                        Drafts
+                        草稿
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-stone-950">
                         {articleCounts.drafts}
@@ -160,7 +157,7 @@ export default async function AuthorDashboardPage() {
                     </div>
                     <div className="rounded-2xl border border-stone-200 bg-white px-4 py-3">
                       <div className="text-xs uppercase tracking-[0.16em] text-stone-400">
-                        Published
+                        已发布
                       </div>
                       <div className="mt-1 text-2xl font-semibold text-stone-950">
                         {articleCounts.published}
@@ -172,28 +169,27 @@ export default async function AuthorDashboardPage() {
                       href={ROUTES.AUTHOR_WRITE}
                       className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
                     >
-                      Write new article
+                      写新文章
                     </Link>
                     <Link
                       href={ROUTES.AUTHOR_ARTICLES}
                       className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
                     >
-                      My articles
+                      我的文章
                     </Link>
                     <Link
                       href={ROUTES.AUTHOR_DETAIL(authorProfile.id)}
                       className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50"
                     >
-                      Public author page
+                      公开作者主页
                     </Link>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <p className="font-medium text-stone-900">You are not an author yet.</p>
+                  <p className="font-medium text-stone-900">你还没有作者资料。</p>
                   <p>
-                    Create an author profile to publish articles under a pen name and let readers
-                    subscribe. Until then, writing forms stay closed.
+                    先创建作者资料，之后就可以用笔名发布文章，并让读者订阅。
                   </p>
                 </div>
               )}

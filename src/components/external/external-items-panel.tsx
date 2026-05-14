@@ -198,7 +198,7 @@ export function ExternalItemsPanel({
         const message =
           "error" in result && result.error?.message
             ? result.error.message
-            : "Failed to update external item.";
+            : "外部内容更新失败。";
         setEditErrorMessage(message);
         return;
       }
@@ -214,9 +214,9 @@ export function ExternalItemsPanel({
         ),
       );
       cancelEdit(itemId);
-      setSuccessMessage("External item updated.");
+      setSuccessMessage("外部内容已更新。");
     } catch {
-      setEditErrorMessage("Failed to update external item.");
+      setEditErrorMessage("外部内容更新失败。");
     } finally {
       setPendingEditId(null);
     }
@@ -238,7 +238,7 @@ export function ExternalItemsPanel({
         const message =
           "error" in result && result.error?.message
             ? result.error.message
-            : "Failed to delete external item.";
+            : "外部内容删除失败。";
         setDeleteErrorMessage(message);
         return;
       }
@@ -251,9 +251,9 @@ export function ExternalItemsPanel({
       });
       setEditingId((current) => (current === itemId ? null : current));
       cancelDelete();
-      setSuccessMessage("External item deleted.");
+      setSuccessMessage("外部内容已删除。");
     } catch {
-      setDeleteErrorMessage("Failed to delete external item.");
+      setDeleteErrorMessage("外部内容删除失败。");
     } finally {
       setPendingDeleteId(null);
     }
@@ -266,7 +266,7 @@ export function ExternalItemsPanel({
       setCollectionFeedback((current) => ({
         ...current,
         [item.id]: {
-          message: "Create a collection first.",
+          message: "请先创建专题。",
           tone: "error",
         },
       }));
@@ -297,7 +297,7 @@ export function ExternalItemsPanel({
         const message =
           "error" in result && result.error?.message
             ? result.error.message
-            : "Failed to add item to collection.";
+            : "加入专题失败。";
         setCollectionFeedback((current) => ({
           ...current,
           [item.id]: {
@@ -309,8 +309,8 @@ export function ExternalItemsPanel({
       }
 
       const collectionName =
-        collections.find((collection) => collection.id === collectionId)?.name ?? "collection";
-      const message = `Added to "${collectionName}".`;
+        collections.find((collection) => collection.id === collectionId)?.name ?? "专题";
+      const message = `已加入“${collectionName}”。`;
 
       setCollectionFeedback((current) => ({
         ...current,
@@ -324,7 +324,7 @@ export function ExternalItemsPanel({
       setCollectionFeedback((current) => ({
         ...current,
         [item.id]: {
-          message: "Failed to add item to collection.",
+          message: "加入专题失败。",
           tone: "error",
         },
       }));
@@ -361,16 +361,16 @@ export function ExternalItemsPanel({
         const message =
           "error" in result && result.error?.message
             ? result.error.message
-            : "Failed to save external item.";
+            : "保存外部内容失败。";
         setErrorMessage(message);
         return;
       }
 
       setItems((current) => [result.data, ...current].slice(0, 50));
       setForm(INITIAL_FORM);
-      setSuccessMessage("Saved to Later.");
+      setSuccessMessage("已保存到稍后阅读。");
     } catch {
-      setErrorMessage("Failed to save external item.");
+      setErrorMessage("保存外部内容失败。");
     } finally {
       setIsSubmitting(false);
     }
@@ -382,26 +382,25 @@ export function ExternalItemsPanel({
         <div className="space-y-5">
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold tracking-tight text-stone-950">
-              Save an external article
+              保存外部内容
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-stone-600">
-              Save only the link, title, source, excerpt, or short note that you enter yourself.
+              手动保存外部链接、标题、来源和摘录，之后再回到这里阅读。
             </p>
           </div>
 
           <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4 text-sm leading-7 text-stone-600">
-            <p>Only save the link details and short excerpts you enter yourself.</p>
-            <p>Do not paste or publicly redistribute unauthorized third-party full text.</p>
+            <p>只保存你手动输入的链接信息和短摘录。</p>
+            <p>不要粘贴或公开传播未经授权的第三方全文。</p>
             <p>
-              This shelf does not import webpages automatically or bypass logins, paywalls, or
-              publisher access rules.
+              稍后阅读不会自动抓取网页，也不会绕过登录、付费墙或发布方访问规则。
             </p>
           </div>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2 sm:col-span-2">
-                <span className="text-sm font-medium text-stone-700">Title</span>
+                <span className="text-sm font-medium text-stone-700">标题</span>
                 <input
                   type="text"
                   value={form.title}
@@ -412,14 +411,14 @@ export function ExternalItemsPanel({
                     }))
                   }
                   className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
-                  placeholder="Article title or your own short label"
+                  placeholder="文章标题或自己的简短标记"
                   maxLength={240}
                   required
                 />
               </label>
 
               <label className="space-y-2 sm:col-span-2">
-                <span className="text-sm font-medium text-stone-700">Source URL</span>
+                <span className="text-sm font-medium text-stone-700">原文链接</span>
                 <input
                   type="url"
                   value={form.sourceUrl}
@@ -433,13 +432,12 @@ export function ExternalItemsPanel({
                   placeholder="https://example.com/article"
                 />
                 <p className="text-xs leading-6 text-stone-500">
-                  Add the original source link so you can return to the publisher for the full
-                  reading experience.
+                  添加原文链接，方便回到发布方页面完整阅读。
                 </p>
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-stone-700">Source platform</span>
+                <span className="text-sm font-medium text-stone-700">来源平台</span>
                 <input
                   type="text"
                   value={form.sourcePlatform}
@@ -450,13 +448,13 @@ export function ExternalItemsPanel({
                     }))
                   }
                   className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
-                  placeholder="Newsletter, website, WeChat article"
+                  placeholder="Newsletter、网站、公众号等"
                   maxLength={120}
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-stone-700">Author name</span>
+                <span className="text-sm font-medium text-stone-700">作者 / 来源名</span>
                 <input
                   type="text"
                   value={form.authorName}
@@ -467,14 +465,14 @@ export function ExternalItemsPanel({
                     }))
                   }
                   className="w-full rounded-2xl border border-stone-200 px-4 py-3 text-sm text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
-                  placeholder="Writer or publication"
+                  placeholder="作者、媒体或发布方"
                   maxLength={160}
                 />
               </label>
             </div>
 
             <label className="space-y-2">
-              <span className="text-sm font-medium text-stone-700">Excerpt</span>
+              <span className="text-sm font-medium text-stone-700">摘录 / 备注</span>
               <textarea
                 value={form.excerpt}
                 onChange={(event) =>
@@ -484,12 +482,11 @@ export function ExternalItemsPanel({
                   }))
                 }
                 className="min-h-28 w-full rounded-3xl border border-stone-200 px-4 py-3 text-sm leading-7 text-stone-900 outline-none transition-colors placeholder:text-stone-400 focus:border-stone-400"
-                placeholder="Your own note, quote, or short reminder"
+                placeholder="你的简短摘录、备注或提醒"
                 maxLength={4000}
               />
               <p className="text-xs leading-6 text-stone-500">
-                Use this for a short excerpt or your own note. Avoid pasting a complete third-party
-                article here.
+                这里适合短摘录或自己的备注。避免粘贴完整第三方文章。
               </p>
             </label>
 
@@ -510,11 +507,10 @@ export function ExternalItemsPanel({
               disabled={isSubmitting}
               className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Saving..." : "Save to Later"}
+              {isSubmitting ? "正在保存..." : "保存到稍后阅读"}
             </button>
             <p className="text-xs leading-6 text-stone-500">
-              Saved as a personal reading item for organization only. This does not mean the
-              platform has parsed or imported the original content.
+              保存后只作为个人阅读记录使用，不代表平台已解析或导入原文。
             </p>
           </form>
         </div>
@@ -524,11 +520,10 @@ export function ExternalItemsPanel({
         <div className="rounded-[2rem] border border-stone-200 bg-stone-50 px-6 py-8 text-sm text-stone-600">
           <div className="space-y-4">
             <div className="text-base font-medium text-stone-900">
-              No external items yet
+              还没有外部内容
             </div>
             <p>
-              Save a source link, short excerpt, or your own note above. Use collections when a
-              saved item starts to belong to a stable topic.
+              在上方保存原文链接、短摘录或自己的备注。内容逐渐成主题后，可以加入专题。
             </p>
             <div className="flex flex-wrap gap-3">
               <button
@@ -539,13 +534,13 @@ export function ExternalItemsPanel({
                 }}
                 className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
               >
-                Save external item
+                保存外部内容
               </button>
               <Link
                 href={ROUTES.COLLECTIONS}
                 className="inline-flex items-center rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400"
               >
-                Open collections
+                打开专题
               </Link>
             </div>
           </div>

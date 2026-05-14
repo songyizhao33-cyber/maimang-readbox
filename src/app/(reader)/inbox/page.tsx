@@ -58,7 +58,7 @@ async function listInboxItems(userId: string, filter: InboxFilter) {
   const { data: inboxRows, error: inboxError } = await query;
 
   if (inboxError) {
-    return { error: "Failed to load inbox items." };
+    return { error: "收件箱加载失败，请刷新后重试。" };
   }
 
   const platformInboxRows = (inboxRows ?? []).filter(
@@ -80,7 +80,7 @@ async function listInboxItems(userId: string, filter: InboxFilter) {
     .eq("status", "published");
 
   if (articleError) {
-    return { error: "Failed to load inbox articles." };
+    return { error: "收件箱文章加载失败，请刷新后重试。" };
   }
 
   const articlesById = new Map(
@@ -106,7 +106,7 @@ async function listInboxItems(userId: string, filter: InboxFilter) {
           .in("id", authorIds);
 
   if (authorError) {
-    return { error: "Failed to load inbox authors." };
+    return { error: "作者信息加载失败，请刷新后重试。" };
   }
 
   const authorsById = new Map(
@@ -169,20 +169,19 @@ export default async function InboxPage({
         <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
           <div className="space-y-4">
             <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-              Inbox
+              收件箱
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-              Sign in to open your inbox
+              登录后查看收件箱
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-              Your subscribed articles are private to your account. Sign in first, then new
-              published work from authors you subscribe to will appear here.
+              订阅作者后的文章只属于你的账号。登录后，新发布的文章会进入这里。
             </p>
             <Link
               href={ROUTES.LOGIN}
               className="inline-flex items-center rounded-full border border-stone-900 bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-50 transition-colors hover:bg-stone-800"
             >
-              Go to login
+              去登录
             </Link>
           </div>
         </div>
@@ -206,16 +205,34 @@ export default async function InboxPage({
       <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
         <div className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Inbox
+            收件箱
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Quiet reading inbox
+            收件箱
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            This list only shows platform articles delivered from authors you subscribed to. It
-            stays chronological and intentionally avoids ranking surfaces or recommendation
-            streams.
+            这里只显示你订阅作者后收到的文章，按时间排列，不做推荐排序。
           </p>
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Link
+              href={ROUTES.HOME}
+              className="inline-flex rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-stone-400 hover:bg-stone-50"
+            >
+              回到工作台
+            </Link>
+            <Link
+              href={ROUTES.AUTHORS}
+              className="inline-flex rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-stone-400 hover:bg-stone-50"
+            >
+              浏览作者
+            </Link>
+            <Link
+              href={ROUTES.LATER}
+              className="inline-flex rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-stone-400 hover:bg-stone-50"
+            >
+              保存外部内容
+            </Link>
+          </div>
           <InboxFilterTabs currentFilter={currentFilter} />
         </div>
       </div>

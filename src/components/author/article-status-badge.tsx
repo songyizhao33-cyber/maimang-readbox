@@ -5,7 +5,7 @@ interface ArticleStatusBadgeProps {
 }
 
 export function ArticleStatusBadge({ status }: ArticleStatusBadgeProps) {
-  const label = status === "published" ? "Published" : status === "draft" ? "Draft" : status;
+  const label = status === "published" ? "已发布" : status === "draft" ? "草稿" : status;
   const className =
     status === "published"
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"

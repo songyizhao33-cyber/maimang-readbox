@@ -1,7 +1,10 @@
+import Link from "next/link";
+
 import type { Database } from "@/types/database";
 import type { AuthorProfile } from "@/types/domain";
 
 import { AuthorCard } from "@/components/author/author-card";
+import { ROUTES } from "@/lib/constants/routes";
 import { createClient } from "@/lib/supabase/server";
 
 type AuthorProfileRow = Pick<
@@ -92,26 +95,32 @@ export default async function AuthorsPage() {
       <div className="rounded-[2rem] border border-stone-200 bg-white p-8 shadow-[0_18px_50px_-32px_rgba(28,25,23,0.35)] sm:p-10">
         <div className="space-y-3">
           <div className="text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
-            Authors
+            作者
           </div>
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">
-            Authors to subscribe to deliberately
+            浏览作者
           </h1>
           <p className="max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
-            Browse active public author profiles and subscribe when you want future published
-            articles to enter your inbox. The list stays chronological and does not rank, recommend,
-            or expose subscriber data.
+            浏览已公开的作者资料。订阅后，作者新发布的文章会进入你的收件箱。
           </p>
+          <div className="pt-2">
+            <Link
+              href={ROUTES.HOME}
+              className="inline-flex rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 transition hover:border-stone-400 hover:bg-stone-50"
+            >
+              回到工作台
+            </Link>
+          </div>
         </div>
       </div>
 
       {error ? (
         <div className="rounded-3xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-          Failed to load authors. Please refresh and try again.
+          作者列表加载失败，请刷新后重试。
         </div>
       ) : authors.length === 0 ? (
         <div className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-5 text-sm text-stone-600">
-          No public author profiles are listed yet.
+          暂时还没有公开作者。
         </div>
       ) : (
         <div className="grid gap-6">
